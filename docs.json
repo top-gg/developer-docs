@@ -81,5 +81,8 @@
         ]
       }
     ]
+  },
+  "api": {
+    "openapi": "https://top.gg/api/v1/openapi/spec.json"
   }
 }
