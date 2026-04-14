@@ -14,7 +14,7 @@ Top.gg fires this event each time a user upvotes your project. Use it to reward 
 </Note>
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `type` | string | Always `"vote.create"` |
 | `data.id` | string | Top.gg vote ID (snowflake) |
 | `data.weight` | number | Vote weight — `1` normally, `2` during weekend multiplier |
@@ -58,7 +58,7 @@ Top.gg fires this event each time a user upvotes your project. Use it to reward 
 This event is always available and lets you verify your endpoint is reachable before real votes arrive. Send a test from your project's **Webhooks** page in the dashboard.
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `type` | string | Always `"webhook.test"` |
 | `data.project.id` | string | Top.gg project ID |
 | `data.project.type` | string | Project type — `"bot"` or `"server"` |
@@ -96,7 +96,7 @@ The v0 webhook system uses simpler, flat payload schemas. Bot and server webhook
 <Tabs>
   <Tab title="Bot webhook">
     | Field | Type | Description |
-    |---|---|---|
+    | --- | --- | --- |
     | `bot` | string | Discord ID of the bot that was voted for |
     | `user` | string | Discord ID of the user who voted |
     | `type` | string | `"upvote"` for real votes, `"test"` when triggered from the dashboard |
@@ -109,23 +109,6 @@ The v0 webhook system uses simpler, flat payload schemas. Bot and server webhook
       "user": "160105994217586689",
       "type": "upvote",
       "isWeekend": false,
-      "query": ""
-    }
-    ```
-  </Tab>
-  <Tab title="Server webhook">
-    | Field | Type | Description |
-    |---|---|---|
-    | `guild` | string | Discord ID of the guild that was voted for |
-    | `user` | string | Discord ID of the user who voted |
-    | `type` | string | `"upvote"` for real votes, `"test"` when triggered from the dashboard |
-    | `query` | string (optional) | Query string parameters appended to the `/servers/:id/vote` page URL |
-
-    ```json
-    {
-      "guild": "803190510032756736",
-      "user": "160105994217586689",
-      "type": "upvote",
       "query": ""
     }
     ```
