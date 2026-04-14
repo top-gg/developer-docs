@@ -1,0 +1,47 @@
+---
+title: "Top.gg Python SDK: topggpy Library"
+sidebarTitle: "Python"
+description: "Install topggpy to post bot stats, track votes, receive vote webhooks, and query the Top.gg API from your Python Discord bot application."
+---
+
+`topggpy` is the official Top.gg library for Python. It provides an async-native client that covers the full Top.gg API surface: posting server counts, fetching bot and user information, checking whether a user has voted, and receiving vote events via a built-in webhook server.
+
+## Installation
+
+```bash
+pip install topggpy
+```
+
+## Features
+
+`topggpy` includes the following capabilities out of the box:
+
+- **POST server count** — keep your listing up to date automatically
+- **GET bot info** — retrieve any bot's details from the Top.gg database
+- **GET server count** — fetch the server count for any listed bot
+- **GET upvote info** — check whether a specific user has voted for your bot
+- **GET user info** — look up a Top.gg user profile
+- **GET widgets** — generate widget image URLs for your bot's listing
+- **GET weekend status** — check whether double-vote weekend is active
+- **Built-in webhook server** — receive vote events without a separate framework
+- **Automated stats posting** — post your server count on a configurable interval
+- **Bot search** — search for bots via the Top.gg API
+
+## Webhook configuration
+
+Before you set up the built-in webhook server, make sure the port you choose is open on your host. Top.gg recommends using a port in the **1024–49151** range for user-space services.
+
+<Warning>
+  If your bot runs behind a firewall or NAT, you must open or forward the webhook port before Top.gg can reach your endpoint. Test your endpoint with a tool like `curl` or `ngrok` before going live.
+</Warning>
+
+## Resources
+
+- [Full documentation](https://topggpy.rtfd.io/)
+- [GitHub repository](https://github.com/top-gg/python-sdk)
+- [PyPI package — topggpy](https://pypi.org/project/topggpy/)
+- [Webhooks overview](/webhooks/overview)
+
+<Note>
+  For community help, join the Top.gg Discord server at [discord.gg/dbl](https://discord.gg/dbl) and ask in the **#development** or **#api** channels.
+</Note>

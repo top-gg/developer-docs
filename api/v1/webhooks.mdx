@@ -1,0 +1,30 @@
+---
+title: "Webhooks API Reference for Top.gg v1"
+sidebarTitle: "Webhooks"
+description: "Top.gg v1 webhooks notify your server in real time using HMAC SHA-256 signatures. Supported scopes include vote.create and webhook.test."
+---
+
+The Top.gg v1 API delivers real-time event notifications to your server via webhooks. When a subscribed event occurs — such as a user voting for your project — Top.gg sends an HTTP POST request to your configured endpoint.
+
+## Security
+
+All v1 webhook requests are signed using **HMAC SHA-256**. Top.gg includes a signature in the request headers derived from your webhook secret and the raw request body. You must verify this signature on every incoming request to confirm it originated from Top.gg and has not been tampered with.
+
+<Warning>
+  Never process a webhook payload without first verifying its signature. Skipping verification exposes your endpoint to spoofed requests.
+</Warning>
+
+## Supported scopes
+
+| Scope          | Description                                            |
+| -------------- | ------------------------------------------------------ |
+| `vote.create`  | Fired when a user votes for your project               |
+| `webhook.test` | Fired when you send a test event from the Top.gg dashboard |
+
+## Full setup guide
+
+Webhook configuration, payload structures, signature verification code examples, and retry behavior are covered in detail in the webhooks documentation.
+
+<Card title="Webhooks overview" icon="webhook" href="/webhooks/overview">
+  Set up and verify Top.gg v1 webhooks, including HMAC signature validation and payload reference.
+</Card>

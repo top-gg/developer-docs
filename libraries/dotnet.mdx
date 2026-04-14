@@ -1,0 +1,68 @@
+---
+title: "Top.gg .NET Library: DiscordBotsList.Api"
+sidebarTitle: ".NET"
+description: "Use the DiscordBotsList.Api NuGet package to post bot stats, query bot and user data, and generate widgets from your .NET application."
+---
+
+`DiscordBotsList.Api` is the official Top.gg library for .NET. It exposes both an unauthenticated client for reading public bot and user data and an authenticated client for posting your bot's stats and generating widget URLs.
+
+## Installation
+
+Run the following command in the NuGet Package Manager Console:
+
+```powershell
+Install-Package DiscordBotsList.Api
+```
+
+## Unauthenticated usage
+
+Use `DiscordBotListApi` to read public data without an API token. This is useful for looking up any bot or user listed on Top.gg.
+
+```csharp unauthenticated.cs
+DiscordBotListApi DblApi = new DiscordBotListApi();
+
+IBot bot = await DblApi.GetBotAsync(160105994217586689);
+IUser user = await DblApi.GetUserAsync(121919449996460033);
+```
+
+## Authenticated usage
+
+Use `AuthDiscordBotListApi` when you need to post stats on behalf of your bot. Pass your bot's Discord ID and your Top.gg API token to the constructor.
+
+```csharp authenticated.cs
+AuthDiscordBotListApi DblApi = new AuthDiscordBotListApi(BOT_DISCORD_ID, YOUR_TOKEN);
+
+// Retrieve your own bot's listing
+ISelfBot me = await DblApi.GetMeAsync();
+
+// Post a simple guild count
+await me.UpdateStatsAsync(2133);
+
+// Post shard-aware stats: shardIndex, shardCount, shards array
+await me.UpdateStatsAsync(24, 50, new[] { 12, 421, 62, 241, 524, 534 });
+```
+
+<Tip>
+  If your bot uses sharding, prefer the overload that accepts `shardIndex`, `shardCount`, and a shard array so your listing displays accurate per-shard information.
+</Tip>
+
+## Widgets
+
+Generate a widget image URL for your bot's listing using `SmallWidgetOptions`. You can customize the widget type and colors before calling `Build`.
+
+```csharp widget.cs
+string widgetUrl = new SmallWidgetOptions()
+  .SetType(WidgetType.OWNER)
+  .SetLeftColor(255, 255, 255)
+  .Build(160105994217586689);
+```
+
+<Note>
+  Embed the returned URL in an `<img>` tag or Markdown image to display the widget on your website or README.
+</Note>
+
+## Resources
+
+- [GitHub repository](https://github.com/top-gg/DBL-dotnet-Library)
+- [NuGet package — DiscordBotsList.Api](https://www.nuget.org/packages/DiscordBotsList.Api)
+- [Webhooks overview](/webhooks/overview)

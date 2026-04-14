@@ -1,0 +1,46 @@
+---
+title: "Top.gg API Rate Limits and 429 Error Handling"
+description: "Understand Top.gg API rate limits: 100 requests per second globally and 60 per minute for bot endpoints, with 1-hour blocks on violations."
+---
+
+The Top.gg API enforces rate limits to protect platform stability and prevent abuse. When you exceed a limit, the API returns an HTTP `429` response and blocks your token for one hour. Understanding the limits before you integrate helps you avoid interruptions.
+
+## Global rate limit
+
+The global rate limit applies to all API routes regardless of the resource being accessed.
+
+| Scope | Limit | Penalty |
+|-------|-------|---------|
+| All routes | 100 requests per second | 1-hour token block |
+
+Stay below 100 requests per second across all endpoints combined. Bursting above this threshold triggers the block immediately.
+
+## Resource-specific rate limits
+
+Certain routes have stricter limits in addition to the global limit. Both limits apply simultaneously.
+
+| Route | Limit | Penalty |
+|-------|-------|---------|
+| `/bots/*` | 60 requests per minute | 1-hour token block |
+
+If you send more than 60 requests per minute to any `/bots/*` endpoint, your token is blocked for one hour even if you are within the global limit.
+
+## Handling rate limit errors
+
+When you exceed a rate limit, the API responds with HTTP `429` and a JSON body containing the number of seconds to wait before retrying:
+
+```json
+{
+  "retry-after": 3600
+}
+```
+
+Read the `retry-after` value and pause all requests for that duration before retrying. Retrying immediately will not succeed and may extend the block.
+
+<Warning>
+  Repeatedly exceeding rate limits can result in a permanent platform ban. Implement proper backoff logic and respect the `retry-after` value in every 429 response.
+</Warning>
+
+<Tip>
+  Community SDKs for Top.gg (available for Node.js, Python, and other languages) handle rate limiting and retry logic automatically. Using an SDK reduces the risk of accidentally triggering blocks.
+</Tip>

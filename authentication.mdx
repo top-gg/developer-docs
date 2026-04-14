@@ -1,0 +1,74 @@
+---
+title: "Authenticate with the Top.gg API"
+description: "Learn how to obtain your Top.gg API token from the dashboard, pass it in the Authorization header, and handle authentication errors for v0 and v1."
+---
+
+Every request to the Top.gg API requires authentication via a token. You obtain this token from your bot or project's dashboard settings and include it in the `Authorization` header of each request. The format differs between v0 and v1.
+
+<Note>
+  Keep your API token secret. Do not commit it to source control or expose it in client-side code. Use environment variables to manage it securely.
+</Note>
+
+## Get your API token
+
+<Steps>
+  <Step title="Open your bot's dashboard">
+    Navigate to your bot's page on Top.gg and open the dashboard. For v0, go directly to:
+    ```
+    https://top.gg/bot/:yourbotid/dashboard/integrations
+    ```
+    For v1, open the **Integrations & API** settings section of your project page.
+  </Step>
+  <Step title="Copy your token">
+    Locate the API token displayed in the **Integrations & API** section and copy it. This is the token you will use to authenticate your requests.
+  </Step>
+</Steps>
+
+## Authenticate v1 requests
+
+Pass your token as a Bearer token in the `Authorization` header:
+
+```bash
+Authorization: Bearer $TOPGG_TOKEN
+```
+
+For example, using curl:
+
+```bash
+curl https://top.gg/api/v1/projects/@me \
+  -H "Authorization: Bearer $TOPGG_TOKEN"
+```
+
+<Warning>
+  Legacy tokens issued without the `Bearer` prefix do not work on v1 endpoints. If you are migrating from v0, create a new token from your project's Integrations & API settings for use with v1.
+</Warning>
+
+## Authenticate v0 requests
+
+Pass your token directly in the `Authorization` header without the `Bearer` prefix:
+
+```bash
+Authorization: your-topgg-token-here
+```
+
+For example, using curl:
+
+```bash
+curl https://top.gg/api/bots/:botid \
+  -H "Authorization: your-topgg-token-here"
+```
+
+## Error responses
+
+The v1 API returns errors in the RFC 7807 `application/problem+json` format. Every error response includes a structured body describing the problem:
+
+```typescript
+type ProblemDetails = {
+  type: string;
+  title: string;
+  status: HTTPStatusCode;
+  detail: string;
+};
+```
+
+A 401 Unauthorized response, for example, will include a `type` field identifying the error class, a human-readable `title`, the HTTP `status` code, and a `detail` message explaining the specific issue.

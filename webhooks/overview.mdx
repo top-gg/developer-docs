@@ -1,0 +1,76 @@
+---
+title: "Receive Vote Notifications with Webhooks"
+description: "Top.gg webhooks deliver real-time vote events to your server via HTTP POST requests, letting you reward voters instantly without polling the API."
+---
+
+Webhooks are the recommended way to react to votes in real time. When a user votes for your bot or server on Top.gg, Top.gg sends an HTTP POST request to a URL you specify. You process the payload and acknowledge receipt with a `2xx` response — no polling required.
+
+## How webhooks work
+
+1. A user votes for your project on Top.gg.
+2. Top.gg sends an HTTP POST request to your configured webhook URL.
+3. Your server processes the payload and returns a `2xx` response within 5 seconds.
+
+If your endpoint does not respond in time or returns a server error, Top.gg retries the delivery automatically.
+
+## Setting up your endpoint
+
+<Steps>
+  <Step title="Create an HTTP endpoint">
+    Build an endpoint on your server that accepts `POST` requests and reads the raw request body. Your handler must return a `2xx` status code to acknowledge each delivery.
+  </Step>
+  <Step title="Enter the webhook URL in your dashboard">
+    Go to your project's dashboard on Top.gg and navigate to **Webhooks**. Paste the full URL of your endpoint (for example, `https://your.bot/webhooks/votes`).
+  </Step>
+  <Step title="Copy your webhook secret (v1)">
+    After saving, Top.gg generates a webhook secret prefixed with `whs_`. Copy this value and store it securely — you'll use it to verify incoming requests.
+  </Step>
+  <Step title="Set an Authorization secret (v0 legacy)">
+    If you're using the legacy v0 webhook system, enter a shared secret in the bot edit form. Top.gg sends this value in the `Authorization` header of every request.
+  </Step>
+</Steps>
+
+## Signature verification (v1)
+
+Every v1 webhook request includes an `x-topgg-signature` header in the format `t={unix timestamp},v1={signature}`. You must verify this signature before trusting the payload.
+
+**Verification steps:**
+
+1. Capture the raw request body as a string (do not parse it first).
+2. Parse the `x-topgg-signature` header to extract the timestamp (`t`) and signature (`v1`).
+3. Compute an HMAC SHA-256 digest of `{timestamp}.{rawBody}` using your webhook secret as the key.
+4. Compare the computed digest to the `v1` value using a constant-time comparison.
+
+```typescript
+import crypto from 'crypto';
+
+function verifyWebhook(rawBody: string, signature: string, secret: string): boolean {
+  const [tPart, v1Part] = signature.split(',');
+  const timestamp = tPart.split('=')[1];
+  const receivedSig = v1Part.split('=')[1];
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(`${timestamp}.${rawBody}`)
+    .digest('hex');
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(receivedSig));
+}
+```
+
+<Warning>
+  Reject any request that fails signature verification. Do not process its payload.
+</Warning>
+
+Each request also includes an `x-topgg-trace` header containing a trace ID you can use when debugging delivery issues with Top.gg support.
+
+## Reliability
+
+<Note>
+  Always return a `2xx` status code to acknowledge that you received the webhook. Returning any other status causes Top.gg to treat the delivery as failed and schedule a retry.
+</Note>
+
+| Property | v1 | v0 legacy |
+|---|---|---|
+| Timeout | 5 seconds | 5 seconds |
+| Max retries | 3 | 10 |
+| Retry delay | Exponential backoff: 2^N seconds (≈1s, 2s, 4s) | Exponential backoff: 2^N seconds (1s up to ~17 min) |
+| Retry triggers | Timeout or 5xx response | Timeout or 5xx response (4xx are not retried) |

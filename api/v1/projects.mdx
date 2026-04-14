@@ -1,0 +1,104 @@
+---
+title: "REST API Endpoints for Projects"
+sidebarTitle: "Projects"
+description: "Use the /projects/@me endpoints to retrieve your project's details and update its Discord slash commands. Requires a valid Bearer token."
+---
+
+The projects endpoints let you read metadata about the project associated with your API token and push updated command definitions to Top.gg. These endpoints are scoped to the authenticated token — you can only access your own project.
+
+<Info>
+  Bot endpoints are subject to stricter rate limits than other v1 endpoints. Stay within the published limits to avoid `429 Too Many Requests` responses.
+</Info>
+
+## GET /projects/@me
+
+Returns the project associated with your current token.
+
+```bash
+curl https://top.gg/api/v1/projects/@me \
+  -H "Authorization: Bearer $TOPGG_TOKEN"
+```
+
+### Response fields
+
+<ResponseField name="id" type="string" required>
+  The unique Top.gg-sourced Snowflake identifier for the project.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  The project name as it appears on the external platform.
+</ResponseField>
+
+<ResponseField name="platform" type="string" required>
+  The platform the project belongs to. One of `discord` or `roblox`.
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  The project type. One of `bot`, `server`, or `game`.
+</ResponseField>
+
+<ResponseField name="headline" type="string" required>
+  The short description set during project creation.
+</ResponseField>
+
+<ResponseField name="tags" type="string[]" required>
+  List of tag IDs associated with the project.
+</ResponseField>
+
+<ResponseField name="votes" type="number" required>
+  Current vote count used for ranking calculations.
+</ResponseField>
+
+<ResponseField name="votes_total" type="number" required>
+  Total all-time votes received by the project.
+</ResponseField>
+
+<ResponseField name="review_score" type="number" required>
+  Average review score across all reviews.
+</ResponseField>
+
+<ResponseField name="review_count" type="number" required>
+  Total number of reviews submitted for the project.
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "id": "218109768489992192",
+  "name": "Miki",
+  "type": "bot",
+  "platform": "discord",
+  "headline": "A great bot with tons of features!",
+  "tags": ["anime", "economy", "fun", "leveling"],
+  "votes": 1120,
+  "votes_total": 313389,
+  "review_score": 4.38,
+  "review_count": 62245
+}
+```
+
+---
+
+## POST /projects/@me/commands
+
+Updates the slash command definitions for your bot project on Top.gg. This endpoint is only applicable to `bot`-type projects on the `discord` platform.
+
+```bash
+curl -X POST https://top.gg/api/v1/projects/@me/commands \
+  -H "Authorization: Bearer $TOPGG_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '[{ "name": "ping", "description": "Replies with Pong!" }]'
+```
+
+### Request body
+
+The request body must be a JSON array of command objects following [Discord's application command structure](https://discord.com/developers/docs/interactions/application-commands#application-command-object). Pass an empty array to clear all commands.
+
+<ParamField body="commands" type="object[]" required>
+  Array of application command objects following Discord's application command structure.
+</ParamField>
+
+### Response
+
+Returns `204 No Content` on success. No response body is returned.

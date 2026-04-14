@@ -1,0 +1,147 @@
+---
+title: "Track Votes with the Top.gg v1 API"
+sidebarTitle: "Votes"
+description: "Fetch paginated vote history with cursor-based pagination or check a specific user's vote status and expiry using the Top.gg v1 votes endpoints."
+---
+
+The votes endpoints let you retrieve a full history of votes for your project or check whether a specific user has voted recently. Vote history is returned in cursor-based pages ordered by creation date. You can also look up an individual user's vote status by their Top.gg or Discord user ID.
+
+---
+
+## GET /projects/@me/votes
+
+Returns a cursor-paginated list of votes for your project, ordered by creation date (oldest first within each page).
+
+```bash
+curl "https://top.gg/api/v1/projects/@me/votes?startDate=2026-01-01T00:00:00Z" \
+  -H "Authorization: Bearer $TOPGG_TOKEN"
+```
+
+<Note>
+  You must provide either `cursor` or `startDate` on every request. If you provide `cursor`, `startDate` is ignored. `startDate` cannot be more than one year in the past.
+</Note>
+
+### Query parameters
+
+<ParamField query="cursor" type="string">
+  Pagination cursor returned by a previous response. When provided, the API returns the next page of results. Takes precedence over `startDate`.
+</ParamField>
+
+<ParamField query="startDate" type="string">
+  ISO 8601 timestamp specifying where to start fetching votes from. Required when `cursor` is not provided. Cannot be more than one year in the past.
+</ParamField>
+
+### Response fields
+
+<ResponseField name="cursor" type="string" required>
+  Opaque cursor string for fetching the next page. Pass this as the `cursor` query parameter on your next request.
+</ResponseField>
+
+<ResponseField name="data" type="object[]" required>
+  Array of vote records.
+
+  <Expandable title="Vote object properties">
+    <ResponseField name="user_id" type="string" required>
+      The Top.gg user ID of the voter.
+    </ResponseField>
+    <ResponseField name="platform_id" type="string" required>
+      The voter's platform-specific user ID (e.g., their Discord user ID).
+    </ResponseField>
+    <ResponseField name="weight" type="number" required>
+      The number of votes this single action counted for (e.g., `2` on weekends for Discord bots).
+    </ResponseField>
+    <ResponseField name="created_at" type="string" required>
+      ISO 8601 timestamp of when the user voted.
+    </ResponseField>
+    <ResponseField name="expires_at" type="string" required>
+      ISO 8601 timestamp of when the user is eligible to vote again.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "cursor": "<cursor-token>",
+  "data": [
+    {
+      "user_id": "1234567890",
+      "platform_id": "1234567890",
+      "weight": 1,
+      "created_at": "2026-01-28T02:19:19.145733Z",
+      "expires_at": "2026-01-28T14:19:19.145733Z"
+    }
+  ]
+}
+```
+
+### Paginating through all votes
+
+To retrieve all votes from a given point in time, start with `startDate` and then use the `cursor` from each response for subsequent requests until you receive an empty `data` array.
+
+```bash
+# First request — start from a date
+curl "https://top.gg/api/v1/projects/@me/votes?startDate=2026-01-01T00:00:00Z" \
+  -H "Authorization: Bearer $TOPGG_TOKEN"
+
+# Subsequent requests — use the returned cursor
+curl "https://top.gg/api/v1/projects/@me/votes?cursor=<cursor-token>" \
+  -H "Authorization: Bearer $TOPGG_TOKEN"
+```
+
+---
+
+## GET /projects/@me/votes/:user_id
+
+Returns the most recent vote status for a specific user. Use this to check whether a user has voted before granting in-app rewards or unlocking features.
+
+```bash
+curl "https://top.gg/api/v1/projects/@me/votes/1234567890?source=discord" \
+  -H "Authorization: Bearer $TOPGG_TOKEN"
+```
+
+### Path parameters
+
+<ParamField path="user_id" type="string" required>
+  The ID of the user to look up. The expected format depends on the `source` parameter.
+</ParamField>
+
+### Query parameters
+
+<ParamField query="source" type="string" default="topgg">
+  The ID type being provided. Defaults to `topgg`. See the table below for valid values.
+</ParamField>
+
+#### Source enum
+
+| Value     | Description                                         |
+| --------- | --------------------------------------------------- |
+| `topgg`   | The user's Top.gg Snowflake ID (default)            |
+| `discord` | The user's Discord Snowflake ID                     |
+
+### Response fields
+
+<ResponseField name="created_at" type="string" required>
+  ISO 8601 timestamp of when the user last voted.
+</ResponseField>
+
+<ResponseField name="expires_at" type="string" required>
+  ISO 8601 timestamp of when the user can vote again. If the current time is before this value, the user has an active vote.
+</ResponseField>
+
+<ResponseField name="weight" type="number" required>
+  The number of votes the user's last vote counted for.
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "created_at": "2023-10-01T12:34:56.789Z",
+  "expires_at": "2023-10-01T18:34:56.789Z",
+  "weight": 1
+}
+```
+
+If the user has not voted or their vote has expired, the API returns `404 Not Found`.

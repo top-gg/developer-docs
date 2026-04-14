@@ -1,0 +1,121 @@
+---
+title: "User Endpoints — Top.gg v0 API"
+sidebarTitle: "Users"
+description: "Fetch a Top.gg user's public profile by their Discord user ID, including social links, roles, and avatar using the GET /users/:user_id endpoint."
+---
+
+The user endpoints let you look up public profile information for any Top.gg user by their Discord user ID. This is useful for displaying voter profiles, verifying user roles, or surfacing social links within your own application.
+
+---
+
+## GET /users/:user_id
+
+Returns public profile data for the Top.gg user associated with the given Discord user ID.
+
+```bash
+curl -X GET https://top.gg/api/users/140862798832861184 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: your-topgg-token"
+```
+
+### Path parameters
+
+<ParamField path="user_id" type="string" required>
+  The Discord Snowflake ID of the user to look up.
+</ParamField>
+
+### Response fields
+
+<ResponseField name="id" type="string" required>
+  The user's Discord Snowflake ID.
+</ResponseField>
+
+<ResponseField name="username" type="string" required>
+  The user's Discord username.
+</ResponseField>
+
+<ResponseField name="discriminator" type="string" required>
+  The user's Discord discriminator (e.g., `"0001"`).
+</ResponseField>
+
+<ResponseField name="avatar" type="string">
+  The user's Discord avatar hash. Absent if the user has no custom avatar.
+</ResponseField>
+
+<ResponseField name="defAvatar" type="string" required>
+  The CDN hash for the user's default (generated) avatar, used as a fallback when `avatar` is absent.
+</ResponseField>
+
+<ResponseField name="bio" type="string">
+  The user's Top.gg profile bio. Absent if not set.
+</ResponseField>
+
+<ResponseField name="banner" type="string">
+  URL of the user's profile banner image. Absent if not set.
+</ResponseField>
+
+<ResponseField name="social" type="object" required>
+  An object containing the user's linked social accounts. All sub-fields are optional and absent when not set.
+
+  <Expandable title="Social fields">
+    <ResponseField name="youtube" type="string">
+      YouTube channel URL or handle.
+    </ResponseField>
+    <ResponseField name="reddit" type="string">
+      Reddit username.
+    </ResponseField>
+    <ResponseField name="twitter" type="string">
+      Twitter/X handle.
+    </ResponseField>
+    <ResponseField name="instagram" type="string">
+      Instagram handle.
+    </ResponseField>
+    <ResponseField name="github" type="string">
+      GitHub username.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="color" type="string">
+  The user's custom profile color as a hex string (e.g., `"#ff6347"`). This value is user-supplied and is not guaranteed to be a valid hex color.
+</ResponseField>
+
+<ResponseField name="supporter" type="boolean" required>
+  Whether the user is a Top.gg supporter.
+</ResponseField>
+
+<ResponseField name="certifiedDev" type="boolean" required>
+  Whether the user is a Top.gg certified developer.
+</ResponseField>
+
+<ResponseField name="mod" type="boolean" required>
+  Whether the user is a Top.gg moderator.
+</ResponseField>
+
+<ResponseField name="webMod" type="boolean" required>
+  Whether the user is a Top.gg web moderator.
+</ResponseField>
+
+<ResponseField name="admin" type="boolean" required>
+  Whether the user is a Top.gg administrator.
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "discriminator": "0001",
+  "avatar": "a_1241439d430def25c100dd28add2d42f",
+  "id": "140862798832861184",
+  "username": "Xetera",
+  "defAvatar": "322c936a8c8be1b803cd94861bdfa868",
+  "admin": true,
+  "webMod": true,
+  "mod": true,
+  "certifiedDev": false,
+  "supporter": false,
+  "social": {}
+}
+```
+
+Returns `404 Not Found` if no Top.gg profile exists for the given Discord user ID.

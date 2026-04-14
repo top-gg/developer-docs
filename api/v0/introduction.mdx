@@ -1,0 +1,42 @@
+---
+title: "Top.gg Legacy v0 API Reference"
+sidebarTitle: "Introduction"
+description: "The Top.gg v0 legacy API provides bot and user endpoints at https://top.gg/api. New integrations should target v1. No Bearer prefix required."
+---
+
+The v0 API is the original Top.gg REST API. It remains available for existing integrations but is considered legacy. It covers bot search and stats endpoints, user lookups, and vote tracking.
+
+<Warning>
+  The v0 API is the legacy version of the Top.gg API. **New integrations should use the [v1 API](/api/v1/introduction)** instead. The v0 API may not receive new features and could be deprecated in a future release.
+</Warning>
+
+## Base URL
+
+All v0 API requests are made to the following base URL:
+
+```
+https://top.gg/api
+```
+
+## Authentication
+
+Authenticate every request by passing your Top.gg token directly in the `Authorization` header. You can find your token on your bot's page under **Integrations & API** settings.
+
+```bash
+Authorization: your-topgg-token-here
+```
+
+For example:
+
+```bash
+curl https://top.gg/api/bots/YOUR_BOT_ID \
+  -H "Authorization: your-topgg-token-here"
+```
+
+<Note>
+  Do not include a `Bearer` prefix. v0 tokens are passed as a raw string. Bearer-prefixed tokens are only valid on [v1 endpoints](/api/v1/introduction).
+</Note>
+
+## Rate limits
+
+All v0 endpoints are rate-limited. **Bot endpoints have stricter limits than other endpoints** — they are capped at **60 requests per minute**. Exceeding the limit returns `429 Too Many Requests`. Include appropriate backoff and retry logic in your integration.

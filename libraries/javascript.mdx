@@ -1,0 +1,81 @@
+---
+title: "Top.gg JavaScript SDK: Stats and Webhooks"
+sidebarTitle: "JavaScript"
+description: "Post bot stats and handle vote webhooks in Node.js using the official @top-gg/sdk npm package with AutoPoster and Express support."
+---
+
+The `@top-gg/sdk` package is the official Top.gg library for Node.js. It lets you post your bot's server count, listen for vote webhooks, and query bot and user data from the Top.gg API. The SDK works with both discord.js and Eris, including sharded bots via `ShardingManager`.
+
+## Installation
+
+<CodeGroup>
+
+```bash npm
+npm install @top-gg/sdk
+```
+
+```bash yarn
+yarn add @top-gg/sdk
+```
+
+</CodeGroup>
+
+<Note>
+  For Deno, an unofficial community port is available at [github.com/link-discord/topgg-deno](https://github.com/link-discord/topgg-deno).
+</Note>
+
+## Auto-posting stats
+
+The `topgg-autoposter` package handles posting your bot's server count to Top.gg on a fixed interval. Pass your Top.gg token and your Discord client (or `ShardingManager`) to `AutoPoster` and it will take care of the rest.
+
+```bash
+npm install topgg-autoposter
+```
+
+```javascript autoposter.js
+const { Client } = require('discord.js') // or Eris, or ShardingManager
+const { AutoPoster } = require('topgg-autoposter')
+
+const client = new Client()
+const ap = AutoPoster('your-top-gg-token', client)
+
+ap.on('posted', () => {
+  console.log('Posted stats to Top.gg!')
+})
+
+client.login('your-discord-token')
+```
+
+<Tip>
+  You can pass a `ShardingManager` instead of a `Client` to correctly report per-shard server counts for large bots.
+</Tip>
+
+## Receiving vote webhooks
+
+Use `@top-gg/sdk` together with [Express](https://expressjs.com) to receive real-time vote events. The `Webhook` class validates the incoming request against your webhook authorization string and calls your handler with the vote payload.
+
+```javascript webhook.js
+const Topgg = require('@top-gg/sdk')
+const express = require('express')
+
+const app = express()
+const webhook = new Topgg.Webhook('your-webhook-auth')
+
+app.post('/dblwebhook', webhook.listener(vote => {
+  console.log(`User ${vote.user} just voted!`)
+  // Throw an error to ask Top.gg to retry the webhook after a few seconds.
+}))
+
+app.listen(80)
+```
+
+<Warning>
+  The authorization string you pass to `new Topgg.Webhook()` must match the value you configured in your Top.gg bot settings. Requests with a missing or incorrect authorization header are rejected automatically.
+</Warning>
+
+## Resources
+
+- [npm package — @top-gg/sdk](https://npmjs.com/package/@top-gg/sdk)
+- [Official SDK documentation](https://topgg.js.org)
+- [GitHub repository](https://github.com/top-gg/node-sdk)
+- [Webhooks overview](/webhooks/overview)

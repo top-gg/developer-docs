@@ -1,0 +1,85 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Top.gg",
+  "theme": "luma",
+  "logo": {
+    "light": "https://media.brand.dev/09d3bf19-a58a-4591-82ab-9a9a8a400de8.svg",
+    "dark": "https://media.brand.dev/09d3bf19-a58a-4591-82ab-9a9a8a400de8.svg"
+  },
+  "favicon": "https://media.brand.dev/0b98513d-325a-4868-b35d-ced16e79c554.png",
+  "colors": {
+    "primary": "#fc3464",
+    "light": "#ffffff"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/top-gg"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "webhooks/overview",
+              "webhooks/events",
+              "webhooks/integrations"
+            ]
+          },
+          {
+            "group": "Libraries",
+            "pages": [
+              "libraries/javascript",
+              "libraries/python",
+              "libraries/dotnet",
+              "libraries/java",
+              "libraries/go",
+              "libraries/rust",
+              "libraries/php",
+              "libraries/ruby"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "resources/rate-limits"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "v1 API",
+            "pages": [
+              "api/v1/introduction",
+              "api/v1/projects",
+              "api/v1/votes",
+              "api/v1/webhooks"
+            ]
+          },
+          {
+            "group": "Legacy v0 API",
+            "pages": [
+              "api/v0/introduction",
+              "api/v0/bots",
+              "api/v0/users"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

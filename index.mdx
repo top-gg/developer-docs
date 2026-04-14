@@ -1,0 +1,55 @@
+---
+title: "Top.gg Developer Docs: API, Webhooks, and SDKs"
+description: "Everything you need to integrate with Top.gg: REST API reference, webhooks, vote tracking, and community SDKs for Discord bots and servers."
+---
+
+Top.gg is the largest discovery platform for Discord bots and servers. As a developer, you can use the Top.gg API to post bot statistics, track votes, receive real-time vote notifications via webhooks, and build approved integrations that connect your service with thousands of listings.
+
+<CardGroup cols={2}>
+  <Card title="Get Started" icon="rocket" href="/introduction">
+    Learn how Top.gg works and make your first API call in minutes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Get your API token and authenticate requests to the Top.gg API.
+  </Card>
+  <Card title="Webhooks" icon="bolt" href="/webhooks/overview">
+    Receive real-time vote notifications sent directly to your server.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/v1/introduction">
+    Full reference for all v1 and legacy v0 REST API endpoints.
+  </Card>
+</CardGroup>
+
+## Choose Your Path
+
+<CardGroup cols={2}>
+  <Card title="JavaScript / Node.js" icon="js" href="/libraries/javascript">
+    Use the official `@top-gg/sdk` npm package to post stats and handle webhooks.
+  </Card>
+  <Card title="Python" icon="python" href="/libraries/python">
+    Install `topggpy` for automated stats posting and webhook support.
+  </Card>
+  <Card title="Other Libraries" icon="books" href="/libraries/dotnet">
+    SDKs available for .NET, Java, Go, Rust, PHP, and Ruby.
+  </Card>
+  <Card title="Rate Limits" icon="gauge" href="/resources/rate-limits">
+    Understand API rate limits to keep your integration running smoothly.
+  </Card>
+</CardGroup>
+
+## How It Works
+
+<Steps>
+  <Step title="List your project">
+    Add your Discord bot or server to Top.gg from the dashboard. Users can then discover and vote for your project.
+  </Step>
+  <Step title="Get your API token">
+    Navigate to your project's **Integrations & API** settings page to obtain your Top.gg API token.
+  </Step>
+  <Step title="Post bot stats">
+    Use the API or an SDK to periodically post your bot's server count. This keeps your listing up to date and improves ranking.
+  </Step>
+  <Step title="Track votes">
+    Set up a webhook endpoint to receive real-time `vote.create` events whenever a user upvotes your project.
+  </Step>
+</Steps>

@@ -1,0 +1,133 @@
+---
+title: "Webhook Event Reference for Top.gg"
+description: "Complete reference for all Top.gg webhook event types, their payload schemas, and example payloads for both v1 and legacy v0 webhooks."
+---
+
+Top.gg webhooks deliver two event types on the v1 system: `vote.create`, fired when a user votes for your project, and `webhook.test`, sent when you trigger a test from the dashboard. The legacy v0 system uses different schemas for bots and servers, described at the bottom of this page.
+
+## `vote.create`
+
+Top.gg fires this event each time a user upvotes your project. Use it to reward voters, update leaderboards, or log activity.
+
+<Note>
+  The `weight` field indicates how many votes this event counts as. During weekend double-vote periods, `weight` is `2`.
+</Note>
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | string | Always `"vote.create"` |
+| `data.id` | string | Top.gg vote ID (snowflake) |
+| `data.weight` | number | Vote weight — `1` normally, `2` during weekend multiplier |
+| `data.created_at` | string | ISO 8601 timestamp when the vote was cast |
+| `data.expires_at` | string | ISO 8601 timestamp when the user can vote again |
+| `data.project.id` | string | Top.gg project ID |
+| `data.project.type` | string | Project type — `"bot"` or `"server"` |
+| `data.project.platform` | string | Platform — always `"discord"` |
+| `data.project.platform_id` | string | Discord client ID of the bot or guild ID of the server |
+| `data.user.id` | string | Top.gg user ID of the voter |
+| `data.user.platform_id` | string | Discord user ID of the voter |
+| `data.user.name` | string | Discord username of the voter |
+| `data.user.avatar_url` | string | Avatar URL of the voter |
+
+```json
+{
+  "type": "vote.create",
+  "data": {
+    "id": "808499215864008704",
+    "weight": 1,
+    "created_at": "2026-02-09T00:47:14.2510149+00:00",
+    "expires_at": "2026-02-09T12:47:14.2510149+00:00",
+    "project": {
+      "id": "803190510032756736",
+      "type": "bot",
+      "platform": "discord",
+      "platform_id": "160105994217586689"
+    },
+    "user": {
+      "id": "top.gg id",
+      "platform_id": "discord id",
+      "name": "username",
+      "avatar_url": "<avatar url>"
+    }
+  }
+}
+```
+
+## `webhook.test`
+
+This event is always available and lets you verify your endpoint is reachable before real votes arrive. Send a test from your project's **Webhooks** page in the dashboard.
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | string | Always `"webhook.test"` |
+| `data.project.id` | string | Top.gg project ID |
+| `data.project.type` | string | Project type — `"bot"` or `"server"` |
+| `data.project.platform` | string | Platform — always `"discord"` |
+| `data.project.platform_id` | string | Discord client ID or guild ID |
+| `data.user.id` | string | Top.gg user ID of the tester |
+| `data.user.platform_id` | string | Discord user ID of the tester |
+| `data.user.name` | string | Discord username of the tester |
+| `data.user.avatar_url` | string | Avatar URL of the tester |
+
+```json
+{
+  "type": "webhook.test",
+  "data": {
+    "user": {
+      "id": "top.gg id",
+      "platform_id": "discord id",
+      "name": "username",
+      "avatar_url": "<avatar url>"
+    },
+    "project": {
+      "id": "803190510032756736",
+      "type": "bot",
+      "platform": "discord",
+      "platform_id": "160105994217586689"
+    }
+  }
+}
+```
+
+## Legacy v0 webhook events
+
+The v0 webhook system uses simpler, flat payload schemas. Bot and server webhooks have different shapes.
+
+<Tabs>
+  <Tab title="Bot webhook">
+    | Field | Type | Description |
+    |---|---|---|
+    | `bot` | string | Discord ID of the bot that was voted for |
+    | `user` | string | Discord ID of the user who voted |
+    | `type` | string | `"upvote"` for real votes, `"test"` when triggered from the dashboard |
+    | `isWeekend` | boolean | `true` when the weekend multiplier is active (votes count as 2) |
+    | `query` | string (optional) | Query string parameters appended to the `/bot/:id/vote` page URL |
+
+    ```json
+    {
+      "bot": "803190510032756736",
+      "user": "160105994217586689",
+      "type": "upvote",
+      "isWeekend": false,
+      "query": ""
+    }
+    ```
+  </Tab>
+  <Tab title="Server webhook">
+    | Field | Type | Description |
+    |---|---|---|
+    | `guild` | string | Discord ID of the guild that was voted for |
+    | `user` | string | Discord ID of the user who voted |
+    | `type` | string | `"upvote"` for real votes, `"test"` when triggered from the dashboard |
+    | `query` | string (optional) | Query string parameters appended to the `/servers/:id/vote` page URL |
+
+    ```json
+    {
+      "guild": "803190510032756736",
+      "user": "160105994217586689",
+      "type": "upvote",
+      "query": ""
+    }
+    ```
+  </Tab>
+</Tabs>

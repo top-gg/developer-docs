@@ -1,0 +1,60 @@
+---
+title: "Top.gg v1 REST API: Projects, Votes, Webhooks"
+sidebarTitle: "Introduction"
+description: "The Top.gg v1 REST API lets you fetch project data and track votes. Authenticate with a Bearer token. Errors follow RFC 7807 problem+json format."
+---
+
+The v1 API is the current recommended version of the Top.gg REST API. It provides endpoints for managing your project, retrieving vote data, and integrating webhooks. All new integrations should target v1.
+
+## Base URL
+
+All v1 API requests are made to the following base URL:
+
+```
+https://top.gg/api/v1
+```
+
+## Authentication
+
+Authenticate every request by passing your Top.gg token as a Bearer token in the `Authorization` header. You can find your token in your project's **Integrations & API** settings on Top.gg.
+
+```bash
+Authorization: Bearer $TOPGG_TOKEN
+```
+
+For example, a complete request looks like this:
+
+```bash
+curl https://top.gg/api/v1/projects/@me \
+  -H "Authorization: Bearer $TOPGG_TOKEN"
+```
+
+<Warning>
+  Legacy tokens (without the `Bearer` prefix) are only valid on v0 endpoints. They will not authenticate against v1 endpoints.
+</Warning>
+
+## Error handling
+
+Error responses from the v1 API follow [RFC 7807](https://www.rfc-editor.org/rfc/rfc7807) and use the `application/problem+json` content type. Every error response includes the following fields:
+
+```typescript
+type ProblemDetails = {
+  type: string;       // A URI identifying the error type
+  title: string;      // Short human-readable summary
+  status: number;     // HTTP status code
+  detail: string;     // Human-readable explanation of this specific occurrence
+};
+```
+
+An example error response for a missing or invalid token looks like:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "The provided token is missing or invalid."
+}
+```
+
+Use the `status` field to determine how to handle errors programmatically, and the `detail` field to surface a meaningful message when debugging.

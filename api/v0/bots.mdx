@@ -1,0 +1,249 @@
+---
+title: "Bot Endpoints — Top.gg v0 API"
+sidebarTitle: "Bots"
+description: "Search bots, fetch individual bot details, retrieve voter lists, check vote status, read stats, and post server counts using the Top.gg v0 bot endpoints."
+---
+
+The bot endpoints let you search the Top.gg bot directory, retrieve details for a specific bot, check vote history, and post server count statistics. All bot endpoints require a valid Top.gg token and are subject to a rate limit of **60 requests per minute**.
+
+<Warning>
+  Bot endpoints have stricter rate limits than other v0 endpoints. Stay within 60 requests per minute to avoid `429 Too Many Requests` errors.
+</Warning>
+
+---
+
+## GET /bots
+
+Searches the Top.gg bot directory with optional filtering, sorting, and pagination.
+
+```bash
+curl "https://top.gg/api/bots?limit=10&sort=-points" \
+  -H "Authorization: your-topgg-token-here"
+```
+
+### Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Number of bots to return. Maximum `500`.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of bots to skip before returning results. Use with `limit` for pagination.
+</ParamField>
+
+<ParamField query="sort" type="string">
+  Field to sort results by. Prefix with `-` to sort in descending order (e.g., `-points`).
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated list of Bot fields to include in the response. Defaults to all fields.
+</ParamField>
+
+### Response fields
+
+<ResponseField name="results" type="object[]" required>
+  Array of Bot objects matching the query.
+</ResponseField>
+
+<ResponseField name="limit" type="number" required>
+  The `limit` value used for this request.
+</ResponseField>
+
+<ResponseField name="offset" type="number" required>
+  The `offset` value used for this request.
+</ResponseField>
+
+<ResponseField name="count" type="number" required>
+  Number of results returned in this response.
+</ResponseField>
+
+<ResponseField name="total" type="number" required>
+  Total number of bots matching the search query.
+</ResponseField>
+
+---
+
+## GET /bots/:bot_id
+
+Returns a single Bot object by its Discord application ID. Returns `404 Not Found` if no bot with that ID is listed on Top.gg.
+
+```bash
+curl https://top.gg/api/bots/264811613708746752 \
+  -H "Authorization: your-topgg-token-here"
+```
+
+See the [Bot structure](#bot-structure) section below for the full list of fields.
+
+---
+
+## GET /bots/:bot_id/votes
+
+Returns the last 1000 unique voters for the specified bot. Each entry includes the voter's username, Discord user ID, and avatar hash.
+
+```bash
+curl https://top.gg/api/bots/264811613708746752/votes \
+  -H "Authorization: your-topgg-token-here"
+```
+
+### Response
+
+Returns an array of voter objects:
+
+<ResponseField name="username" type="string" required>
+  The voter's Discord username.
+</ResponseField>
+
+<ResponseField name="id" type="string" required>
+  The voter's Discord Snowflake ID.
+</ResponseField>
+
+<ResponseField name="avatar" type="string" required>
+  The voter's Discord avatar hash.
+</ResponseField>
+
+<Warning>
+  This endpoint returns only the **last 1,000 unique voters** and does not include double votes or weekend bonus votes. If your bot receives more than 1,000 votes per month, you must use [webhooks](/webhooks/overview) and maintain your own vote cache instead of relying on this endpoint.
+</Warning>
+
+---
+
+## GET /bots/:bot_id/stats
+
+Returns server and shard statistics for the specified bot.
+
+```bash
+curl https://top.gg/api/bots/264811613708746752/stats \
+  -H "Authorization: your-topgg-token-here"
+```
+
+### Response fields
+
+<ResponseField name="server_count" type="number">
+  Total number of servers the bot is in. May be absent if not posted.
+</ResponseField>
+
+<ResponseField name="shards" type="number[]" required>
+  Array of server counts per shard.
+</ResponseField>
+
+<ResponseField name="shard_count" type="number">
+  Total number of shards. May be absent if not posted.
+</ResponseField>
+
+---
+
+## GET /bots/:bot_id/check
+
+Checks whether a specific user has an active vote for the bot. Safe to call even if your bot has more than 1,000 monthly votes.
+
+```bash
+curl "https://top.gg/api/bots/264811613708746752/check?userId=129908908096487424" \
+  -H "Authorization: your-topgg-token-here"
+```
+
+### Query parameters
+
+<ParamField query="userId" type="string" required>
+  The Discord Snowflake ID of the user to check.
+</ParamField>
+
+### Response
+
+```json
+{ "voted": 1 }
+```
+
+A `voted` value of `1` means the user has voted in the past 12 hours. A value of `0` means they have not.
+
+---
+
+## POST /bots/:bot_id/stats
+
+Posts updated server count statistics for the specified bot. Call this endpoint whenever your bot's server count changes — for example, when it joins or leaves a guild.
+
+```bash
+curl -X POST https://top.gg/api/bots/264811613708746752/stats \
+  -H "Authorization: your-topgg-token-here" \
+  -H "Content-Type: application/json" \
+  -d '{ "server_count": 2 }'
+```
+
+### Request body
+
+<ParamField body="server_count" type="number | number[]" required>
+  The number of servers your bot is in. Pass an array to post per-shard counts (equivalent to using the `shards` field).
+</ParamField>
+
+<ParamField body="shards" type="number[]">
+  An array of server counts, one entry per shard.
+</ParamField>
+
+<ParamField body="shard_id" type="number">
+  The zero-indexed ID of the shard posting stats. Used when posting per-shard updates.
+</ParamField>
+
+<ParamField body="shard_count" type="number">
+  The total number of shards your bot is running.
+</ParamField>
+
+### Response
+
+Returns `200 OK` with an empty body on success.
+
+---
+
+## Bot structure
+
+Every bot endpoint that returns a Bot object uses the following structure:
+
+| Field              | Type         | Description                                              |
+| ------------------ | ------------ | -------------------------------------------------------- |
+| `id`               | string       | Discord application Snowflake ID                         |
+| `username`         | string       | Bot username                                             |
+| `discriminator`    | string       | Bot discriminator                                        |
+| `avatar`           | string?      | Avatar hash (null if no custom avatar)                   |
+| `defAvatar`        | string?      | Default CDN avatar hash                                  |
+| `lib`              | string       | Library the bot is built with                            |
+| `prefix`           | string       | Bot command prefix                                       |
+| `shortdesc`        | string       | Short description shown on listings                      |
+| `longdesc`         | string?      | Full description (may contain Markdown or HTML)          |
+| `tags`             | string[]     | List of category tags                                    |
+| `website`          | string?      | Bot's website URL                                        |
+| `support`          | string?      | Support server invite code                               |
+| `github`           | string?      | GitHub repository URL                                    |
+| `owners`           | string[]     | Snowflake IDs of the bot's owners                        |
+| `guilds`           | string[]     | Snowflake IDs of featured guilds                         |
+| `invite`           | string?      | Custom invite URL                                        |
+| `date`             | string       | ISO 8601 date the bot was added to Top.gg                |
+| `server_count`     | number?      | Current server count (if posted)                         |
+| `shard_count`      | number?      | Current shard count (if posted)                          |
+| `certifiedBot`     | boolean      | Whether the bot is Top.gg certified                      |
+| `vanity`           | string?      | Vanity URL slug                                          |
+| `points`           | number       | All-time vote count                                      |
+| `monthlyPoints`    | number       | Vote count for the current month                         |
+| `donatebotguildid` | string       | Guild ID for Donatebot integration (empty if unused)     |
+
+### Example bot object
+
+```json
+{
+  "id": "264811613708746752",
+  "username": "Luca",
+  "discriminator": "1375",
+  "avatar": "7edcc4c6fbb0b23762455ca139f0e1c9",
+  "defAvatar": "6debd47ed13483642cf09e832ed0bc1b",
+  "prefix": "- or @Luca#1375",
+  "shortdesc": "Luca is a bot for managing and informing members of the server",
+  "longdesc": "Luca only works in the Discord Bot List server.",
+  "tags": ["Moderation", "Role Management", "Logging"],
+  "owners": ["129908908096487424"],
+  "guilds": ["417723229721853963", "264445053596991498"],
+  "date": "2017-04-26T18:08:17.125Z",
+  "server_count": 2,
+  "shard_count": 1,
+  "certifiedBot": false,
+  "points": 397,
+  "monthlyPoints": 19,
+  "donatebotguildid": ""
+}
+```

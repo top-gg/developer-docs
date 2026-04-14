@@ -1,0 +1,98 @@
+{
+  "projectType": "api-service",
+  "projectName": "Top.gg",
+  "projectDescription": "Top.gg is a discovery platform for Discord bots and servers, providing a public REST API for listing management, vote tracking, webhooks, and integrations.",
+  "theme": "luma",
+  "primaryColor": "#fc3464",
+  "lightColor": "#ffffff",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "webhooks/overview",
+              "webhooks/events",
+              "webhooks/integrations"
+            ]
+          },
+          {
+            "group": "Libraries",
+            "pages": [
+              "libraries/javascript",
+              "libraries/python",
+              "libraries/dotnet",
+              "libraries/java",
+              "libraries/go",
+              "libraries/rust",
+              "libraries/php",
+              "libraries/ruby"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "resources/rate-limits"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "v1 API",
+            "pages": [
+              "api/v1/introduction",
+              "api/v1/projects",
+              "api/v1/votes",
+              "api/v1/webhooks"
+            ]
+          },
+          {
+            "group": "Legacy v0 API",
+            "pages": [
+              "api/v0/introduction",
+              "api/v0/bots",
+              "api/v0/users"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Bot and server listing discovery on Discord",
+    "Vote tracking with real-time webhook notifications",
+    "REST API (v0 and v1) for managing listings and stats",
+    "Webhook integrations with HMAC signature verification",
+    "Installable third-party integrations via handshake flow",
+    "Community-maintained SDKs for JavaScript, Python, .NET, Java, Go, Rust, PHP, and Ruby"
+  ],
+  "publicApiSurface": [
+    "GET /api/bots — Search bots",
+    "GET /api/bots/:bot_id — Get a single bot",
+    "GET /api/bots/:bot_id/votes — Last 1000 voters",
+    "GET /api/bots/:bot_id/check — Check if user voted",
+    "POST /api/bots/:bot_id/stats — Post bot server count",
+    "GET /api/users/:user_id — Get user info",
+    "GET /api/v1/projects/@me — Get current project",
+    "POST /api/v1/projects/@me/commands — Update bot slash commands",
+    "GET /api/v1/projects/@me/votes — Get paginated votes",
+    "GET /api/v1/projects/@me/votes/:user_id — Get vote status for user",
+    "vote.create webhook event",
+    "webhook.test webhook event",
+    "integration.create integration handshake",
+    "integration.delete disconnect event"
+  ]
+}

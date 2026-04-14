@@ -1,0 +1,100 @@
+---
+title: "Build Installable Top.gg Integrations"
+description: "Build approved integrations that let users connect your service to their Top.gg project with one click and receive webhook events automatically."
+---
+
+Integrations are approved, installable webhook-based connections that users can add directly from your listing's page on Top.gg. Instead of manually configuring a webhook URL, users click **Connect** and Top.gg handles the setup handshake with your service automatically.
+
+<Warning>
+  Integrations require approval from Top.gg before they can be listed. Contact Top.gg to apply before building your integration.
+</Warning>
+
+## How integrations work
+
+When a user connects your integration, Top.gg performs a one-time handshake with your service: it sends an `integration.create` event to your configuration URL, and you respond with the webhook URL and event scopes you want to subscribe to. From that point on, Top.gg delivers signed webhook events to your endpoint just like any other webhook.
+
+When a user disconnects, Top.gg sends an `integration.delete` event so you can clean up the connection on your side.
+
+## The handshake flow
+
+<Steps>
+  <Step title="User clicks Connect">
+    A user visits your integration page on Top.gg and clicks the **Connect** button.
+  </Step>
+  <Step title="Top.gg sends integration.create to your config URL">
+    Top.gg sends a `POST` request to your integration's configuration URL with an `integration.create` payload. This includes a `connection_id` that uniquely identifies this connection and a `webhook_secret` you'll use to verify future webhook deliveries.
+
+    ```json
+    {
+      "type": "integration.create",
+      "data": {
+        "connection_id": "112402021105124",
+        "webhook_secret": "whs_abcd",
+        "project": {
+          "id": "1230954036934033243",
+          "platform": "discord",
+          "platform_id": "3949456393249234923",
+          "type": "bot"
+        },
+        "user": {
+          "id": "top.gg id",
+          "platform_id": "discord id",
+          "name": "username",
+          "avatar_url": "<avatar url>"
+        }
+      }
+    }
+    ```
+  </Step>
+  <Step title="Store the connection and respond with your webhook configuration">
+    Persist the `connection_id` and `webhook_secret` for this user. Then respond with the webhook URL you want Top.gg to deliver events to and the list of event scopes you're subscribing to.
+
+    ```json
+    {
+      "webhook_url": "https://your.bot/webhooks/xyz",
+      "routes": ["vote.create"]
+    }
+    ```
+
+    | Field | Type | Description |
+    |---|---|---|
+    | `webhook_url` | string | The URL Top.gg will POST webhook events to |
+    | `routes` | string[] | Array of event scopes to subscribe to (e.g., `["vote.create"]`) |
+  </Step>
+  <Step title="Connection established">
+    Top.gg confirms the connection. Going forward, Top.gg delivers webhook events for the subscribed scopes to your `webhook_url`, signed with the `webhook_secret` from step 2. Verify signatures using the standard [v1 signature verification](/webhooks/overview#signature-verification-v1) process.
+  </Step>
+</Steps>
+
+## Handling disconnections
+
+When a user removes the managed webhook from their dashboard, Top.gg sends an `integration.delete` event to your configuration URL. Use the `connection_id` to identify which connection to remove from your system.
+
+```json
+{
+  "type": "integration.delete",
+  "data": {
+    "connection_id": "112402021105124"
+  }
+}
+```
+
+Respond with a `2xx` status to acknowledge the deletion.
+
+## Integration payload fields
+
+The following table describes every field in the `integration.create` payload.
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | string | Always `"integration.create"` |
+| `data.connection_id` | string | Unique identifier for this connection — store this to track and delete connections |
+| `data.webhook_secret` | string | Webhook secret (prefixed `whs_`) used to verify all future webhook deliveries for this connection |
+| `data.project.id` | string | Top.gg project ID |
+| `data.project.platform` | string | Platform — always `"discord"` |
+| `data.project.platform_id` | string | Discord client ID of the bot or guild ID of the server |
+| `data.project.type` | string | Project type — `"bot"` or `"server"` |
+| `data.user.id` | string | Top.gg user ID of the person who clicked Connect |
+| `data.user.platform_id` | string | Discord user ID of the person who clicked Connect |
+| `data.user.name` | string | Discord username of the person who clicked Connect |
+| `data.user.avatar_url` | string | Avatar URL of the person who clicked Connect |
