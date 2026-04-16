@@ -1,10 +1,10 @@
 ---
 title: "REST API Endpoints for Projects"
 sidebarTitle: "Projects"
-description: "Use the /projects/@me endpoints to retrieve your project's details and update its Discord slash commands. Requires a valid Bearer token."
+description: "Use the /projects/@me endpoints to retrieve project details, update headline and page content, create announcements, and update Discord slash commands. Requires a valid Bearer token."
 ---
 
-The projects endpoints let you read metadata about the project associated with your API token and push updated command definitions to Top.gg. These endpoints are scoped to the authenticated token — you can only access your own project.
+The projects endpoints let you retrieve your project's details, update its headline and page content, create announcements, and push updated command definitions to Top.gg. These endpoints are scoped to the authenticated token, so you can only access your own project.
 
 <Info>
   Bot endpoints are subject to stricter rate limits than other v1 endpoints. Stay within the published limits to avoid `429 Too Many Requests` responses.
@@ -77,6 +77,112 @@ curl https://top.gg/api/v1/projects/@me \
   "review_count": 62245
 }
 ```
+
+---
+
+## PATCH /projects/@me
+
+Updates the headline and/or page content for your project. Both fields are locale-keyed, so you can set content for multiple languages in a single request.
+
+```bash
+curl -X PATCH https://top.gg/api/v1/projects/@me \
+  -H "Authorization: Bearer $TOPGG_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "headline": {
+      "en": "A great bot with tons of features!"
+    },
+    "page_content": {
+      "en": "# Welcome\nThis is the full page description for your project..."
+    }
+  }'
+```
+
+### Request body
+
+At least one of `headline` or `page_content` must be provided.
+
+<ParamField body="headline" type="object">
+  A map of locale codes to headline strings. Each headline must be between 3 and 140 characters.
+</ParamField>
+
+<ParamField body="page_content" type="object">
+  A map of locale codes to page content strings (Markdown supported). Each entry must be between 300 and 50,000 characters.
+</ParamField>
+
+### Supported locales
+
+`en`, `de`, `fr`, `pt`, `tr`, `hi`, `ja`, `ar`, `nl`
+
+### Response
+
+Returns `204 No Content` on success. No response body is returned.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `400` | Invalid project token |
+| `404` | Project not found |
+| `422` | Validation error (unsupported locale, length violations, or missing fields) |
+
+---
+
+## PUT /projects/@me/announcements
+
+Creates a new announcement for your project. Announcements appear on your project's page and can be used to notify users about updates, new features, or other news.
+
+```bash
+curl -X PUT https://top.gg/api/v1/projects/@me/announcements \
+  -H "Authorization: Bearer $TOPGG_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Version 2.0 Released!",
+    "content": "We just released version 2.0 with a bunch of new features and improvements."
+  }'
+```
+
+### Request body
+
+<ParamField body="title" type="string" required>
+  The announcement title. Must be between 3 and 100 characters.
+</ParamField>
+
+<ParamField body="content" type="string" required>
+  The announcement body text. Must be between 10 and 2,000 characters.
+</ParamField>
+
+### Response fields
+
+<ResponseField name="title" type="string" required>
+  The title of the created announcement.
+</ResponseField>
+
+<ResponseField name="content" type="string" required>
+  The body content of the created announcement.
+</ResponseField>
+
+<ResponseField name="created_at" type="string" required>
+  ISO 8601 timestamp of when the announcement was created.
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "title": "Version 2.0 Released!",
+  "content": "We just released version 2.0 with a bunch of new features and improvements.",
+  "created_at": "2026-03-14T15:09:26Z"
+}
+```
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `400` | Invalid project token |
+| `404` | Project not found |
+| `422` | Validation error (title or content length violations) |
 
 ---
 
