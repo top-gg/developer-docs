@@ -1,55 +1,35 @@
-# Mintlify Starter Kit
+# Top.gg Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+This repo contains the official Top.gg documentation, which can be viewed online [here](https://docs.top.gg/introduction). Before submitting pull requests, please remember to read the [Contributing](CONTRIBUTING.md) guidelines.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+-   Issue tracker: [Top.gg API bugs](https://github.com/top-gg/developer-docs/issues)
+-   Discussions: [Top.gg API feature and improvement requests](https://github.com/top-gg/developer-docs/discussions)
+-   Pull Requests: See [Contributing.md](CONTRIBUTING.md) for types of changes accepted and specific markdown syntax used in the documentation.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+### Local Preview
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+Install the [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the documentation changes locally. To install, use the following command
 
 ```
-npm i -g mint
+npm i -g mintlify
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Run `mintlify dev` in the root directory to see your changes locally.
 
 ```
-mint dev
+mintlify dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Your local browser should open automatically to the correct page, but if not, navigate to:
 
-## Publishing changes
+```
+http://localhost:3000/introduction
+```
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+## Need some help?
 
-## Need help?
+Here are some places that can help you out with everything Top.gg API:
 
-### Troubleshooting
+The [Official Top.gg Discord server](https://discord.gg/EYHTgJX) has plenty of help channels with knowledgeable people and the Top.gg team to get you the help you need, and get updates straight from the developers.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+You can also browse the [API reference](https://docs.top.gg/api/v1/introduction) and [library list](https://docs.top.gg/libraries/javascript) to find community-maintained SDKs in your language of choice.
