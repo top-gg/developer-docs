@@ -17,12 +17,12 @@ Top.gg fires this event each time a user upvotes your project. Use it to reward 
 | --- | --- | --- |
 | `type` | string | Always `"vote.create"` |
 | `data.id` | string | Top.gg vote ID (snowflake) |
-| `data.weight` | number | Vote weight — `1` normally, `2` during weekend multiplier |
+| `data.weight` | number | Vote weight (`1` normally, `2` during weekend multiplier) |
 | `data.created_at` | string | ISO 8601 timestamp when the vote was cast |
 | `data.expires_at` | string | ISO 8601 timestamp when the user can vote again |
 | `data.project.id` | string | Top.gg project ID |
-| `data.project.type` | string | Project type — `"bot"` or `"server"` |
-| `data.project.platform` | string | Platform — always `"discord"` |
+| `data.project.type` | string | Project type (`"bot"` or `"server"`) |
+| `data.project.platform` | string | Platform (always `"discord"`) |
 | `data.project.platform_id` | string | Discord client ID of the bot or guild ID of the server |
 | `data.user.id` | string | Top.gg user ID of the voter |
 | `data.user.platform_id` | string | Discord user ID of the voter |
@@ -61,8 +61,8 @@ This event is always available and lets you verify your endpoint is reachable be
 | --- | --- | --- |
 | `type` | string | Always `"webhook.test"` |
 | `data.project.id` | string | Top.gg project ID |
-| `data.project.type` | string | Project type — `"bot"` or `"server"` |
-| `data.project.platform` | string | Platform — always `"discord"` |
+| `data.project.type` | string | Project type (`"bot"` or `"server"`) |
+| `data.project.platform` | string | Platform (always `"discord"`) |
 | `data.project.platform_id` | string | Discord client ID or guild ID |
 | `data.user.id` | string | Top.gg user ID of the tester |
 | `data.user.platform_id` | string | Discord user ID of the tester |

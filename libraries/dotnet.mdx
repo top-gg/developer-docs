@@ -8,10 +8,22 @@ description: "Use the DiscordBotsList.Api NuGet package to post bot stats, query
 
 ## Installation
 
-Run the following command in the NuGet Package Manager Console:
+Install with the .NET CLI:
+
+```bash
+dotnet add package DiscordBotsList.Api
+```
+
+Or from the NuGet Package Manager Console:
 
 ```powershell
 Install-Package DiscordBotsList.Api
+```
+
+Or add a `PackageReference` directly to your `.csproj`:
+
+```xml
+<PackageReference Include="DiscordBotsList.Api" Version="*" />
 ```
 
 ## Unauthenticated usage
@@ -64,5 +76,5 @@ string widgetUrl = new SmallWidgetOptions()
 ## Resources
 
 - [GitHub repository](https://github.com/top-gg/DBL-dotnet-Library)
-- [NuGet package — DiscordBotsList.Api](https://www.nuget.org/packages/DiscordBotsList.Api)
+- [NuGet package (DiscordBotsList.Api)](https://www.nuget.org/packages/DiscordBotsList.Api)
 - [Webhooks overview](/webhooks/overview)
