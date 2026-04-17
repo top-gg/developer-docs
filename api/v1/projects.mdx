@@ -199,8 +199,8 @@ curl -X POST https://top.gg/api/v1/projects/@me/metrics \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "server_count": 2133,
-    "shard_count": 8
+    "server_count": 67,
+    "shard_count": 420
   }'
 ```
 
@@ -234,11 +234,11 @@ curl -X POST https://top.gg/api/v1/projects/@me/metrics/batch \
     "data": [
       {
         "timestamp": "2026-04-17T10:00:00Z",
-        "metrics": { "server_count": 2130 }
+        "metrics": { "server_count": 66 }
       },
       {
         "timestamp": "2026-04-17T10:05:00Z",
-        "metrics": { "server_count": 2133, "shard_count": 8 }
+        "metrics": { "server_count": 67, "shard_count": 420 }
       }
     ]
   }'
@@ -291,8 +291,8 @@ Use for projects with `platform: "discord"` and `type: "bot"`. At least one fiel
 
 ```json
 {
-  "server_count": 2133,
-  "shard_count": 8
+  "server_count": 67,
+  "shard_count": 420
 }
 ```
 
