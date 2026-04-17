@@ -3,7 +3,7 @@ title: "Receive Vote Notifications with Webhooks"
 description: "Top.gg webhooks deliver real-time vote events to your server via HTTP POST requests, letting you reward voters instantly without polling the API."
 ---
 
-Webhooks are the recommended way to react to votes in real time. When a user votes for your bot or server on Top.gg, Top.gg sends an HTTP POST request to a URL you specify. You process the payload and acknowledge receipt with a `2xx` response — no polling required.
+Webhooks are the recommended way to react to votes in real time. When a user votes for your bot or server on Top.gg, Top.gg sends an HTTP POST request to a URL you specify. You process the payload and acknowledge receipt with a `2xx` response. No polling required.
 
 ## How webhooks work
 
@@ -23,7 +23,7 @@ If your endpoint does not respond in time or returns a server error, Top.gg retr
     Go to your project's dashboard on Top.gg and navigate to **Webhooks**. Paste the full URL of your endpoint (for example, `https://your.bot/webhooks/votes`).
   </Step>
   <Step title="Copy your webhook secret (v1)">
-    After saving, Top.gg generates a webhook secret prefixed with `whs_`. Copy this value and store it securely — you'll use it to verify incoming requests.
+    After saving, Top.gg generates a webhook secret prefixed with `whs_`. Copy this value and store it securely, since you'll use it to verify incoming requests.
   </Step>
   <Step title="Set an Authorization secret (v0 legacy)">
     If you're using the legacy v0 webhook system, enter a shared secret in the bot edit form. Top.gg sends this value in the `Authorization` header of every request.

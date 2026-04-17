@@ -4,15 +4,31 @@ sidebarTitle: "Rust"
 description: "A community-maintained Rust crate for the Top.gg API. Post bot stats, retrieve bot data, and query the Top.gg API from your Rust Discord bot."
 ---
 
-The Top.gg Rust SDK is a community-maintained crate that wraps the Top.gg REST API for Rust applications. It is not maintained by the Top.gg core team. The GitHub repository is the authoritative source for the crate name, `Cargo.toml` dependency, and usage examples.
+The Top.gg Rust SDK is a community-maintained crate that wraps the Top.gg REST API for Rust applications. It is not maintained by the Top.gg core team. The crate is published on [crates.io](https://crates.io/crates/topgg).
 
-## Getting started
+## Installation
 
-**[github.com/top-gg/rust-sdk](https://github.com/top-gg/rust-sdk)**
+Add the crate to your project with Cargo:
 
-<Note>
-  The repository README contains the `Cargo.toml` dependency snippet and async usage examples. Check there for the latest version published to [crates.io](https://crates.io).
-</Note>
+```bash
+cargo add topgg
+```
+
+Or add it to the `[dependencies]` section of your `Cargo.toml` directly:
+
+```toml
+[dependencies]
+topgg = "VERSION"
+```
+
+The crate ships with optional feature flags for common web frameworks and Discord libraries. Enable only what you need:
+
+```toml
+[dependencies]
+topgg = { version = "VERSION", features = ["autoposter", "serenity"] }
+```
+
+Available features include `autoposter`, `serenity`, `serenity-cached`, `twilight`, `axum`, `actix-web`, `rocket`, and `warp`. Check [crates.io](https://crates.io/crates/topgg) for the current version.
 
 ## Community and support
 

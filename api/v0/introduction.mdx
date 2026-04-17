@@ -39,4 +39,4 @@ curl https://top.gg/api/bots/YOUR_BOT_ID \
 
 ## Rate limits
 
-All v0 endpoints are rate-limited. **Bot endpoints have stricter limits than other endpoints** — they are capped at **60 requests per minute**. Exceeding the limit returns `429 Too Many Requests`. Include appropriate backoff and retry logic in your integration.
+All v0 endpoints are rate-limited. **Bot endpoints have stricter limits than other endpoints** and are capped at **60 requests per minute**. Exceeding the limit returns `429 Too Many Requests`. Include appropriate backoff and retry logic in your integration.

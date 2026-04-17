@@ -4,23 +4,57 @@ sidebarTitle: "Java"
 description: "A community-maintained Java library for the Top.gg API. Post bot stats and retrieve bot and user information from your Java application."
 ---
 
-The Top.gg Java SDK is a community-maintained library that wraps the Top.gg REST API for Java applications. It supports posting your bot's server count and retrieving bot and user information. Because it is community-maintained, the GitHub repository is the authoritative source for installation instructions, dependency coordinates, and usage examples.
+The Top.gg Java SDK is a community-maintained library that wraps the Top.gg REST API for Java applications. It supports posting your bot's server count and retrieving bot and user information. It is not maintained by the Top.gg core team.
 
-## Getting started
+## Installation
 
-Visit the GitHub repository for the latest release, Maven/Gradle dependency coordinates, and full usage documentation:
+The SDK is published through [JitPack](https://jitpack.io/#top-gg/java-sdk). Replace `VERSION` with the latest release tag or commit hash listed on the [releases page](https://github.com/top-gg/java-sdk/releases).
 
-**[github.com/top-gg/java-sdk](https://github.com/top-gg/java-sdk)**
+### Maven
 
-<Note>
-  Installation instructions, versioning, and code examples are maintained in the repository's README. Check there for the most up-to-date information.
-</Note>
+Add the JitPack repository and the dependency to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.top-gg</groupId>
+        <artifactId>java-sdk</artifactId>
+        <version>VERSION</version>
+    </dependency>
+</dependencies>
+```
+
+### Gradle
+
+Add the JitPack repository and the dependency to your `build.gradle`:
+
+```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+
+```gradle
+dependencies {
+    implementation 'com.github.top-gg:java-sdk:VERSION'
+}
+```
 
 ## What the library supports
 
 - Posting your bot's server count to Top.gg
 - Retrieving bot information and server counts
 - Fetching Top.gg user profiles
+- Checking if a specific user has voted
 
 ## Community and support
 

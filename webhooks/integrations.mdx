@@ -88,12 +88,12 @@ The following table describes every field in the `integration.create` payload.
 | Field | Type | Description |
 |---|---|---|
 | `type` | string | Always `"integration.create"` |
-| `data.connection_id` | string | Unique identifier for this connection — store this to track and delete connections |
+| `data.connection_id` | string | Unique identifier for this connection. Store this to track and delete connections |
 | `data.webhook_secret` | string | Webhook secret (prefixed `whs_`) used to verify all future webhook deliveries for this connection |
 | `data.project.id` | string | Top.gg project ID |
-| `data.project.platform` | string | Platform — always `"discord"` |
+| `data.project.platform` | string | Platform (always `"discord"`) |
 | `data.project.platform_id` | string | Discord client ID of the bot or guild ID of the server |
-| `data.project.type` | string | Project type — `"bot"` or `"server"` |
+| `data.project.type` | string | Project type (`"bot"` or `"server"`) |
 | `data.user.id` | string | Top.gg user ID of the person who clicked Connect |
 | `data.user.platform_id` | string | Discord user ID of the person who clicked Connect |
 | `data.user.name` | string | Discord username of the person who clicked Connect |
