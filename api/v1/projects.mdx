@@ -224,7 +224,7 @@ Returns `204 No Content` on success. No response body is returned.
 
 ## POST /projects/@me/metrics/batch
 
-Submits up to 100 metrics entries in a single request. Entries are applied in ascending timestamp order, so you can backfill gaps or push buffered samples after a network interruption.
+Submits up to 100 metrics entries in a single request. Entries without a `timestamp` are applied first in the order they appear in the request. Entries with a `timestamp` are applied afterward in ascending timestamp order, so you can backfill gaps or push buffered samples after a network interruption.
 
 ```bash
 curl -X POST https://top.gg/api/v1/projects/@me/metrics/batch \
@@ -250,12 +250,12 @@ curl -X POST https://top.gg/api/v1/projects/@me/metrics/batch \
   The batch of metrics entries. Must contain between 1 and 100 entries.
 
   <Expandable title="Entry object properties">
-    <ResponseField name="metrics" type="object" required>
+    <ParamField name="metrics" type="object" required>
       The metrics payload for this entry. Must be a JSON object matching the project's platform shape. See [platform payloads](#platform-payloads).
-    </ResponseField>
-    <ResponseField name="timestamp" type="string">
+    </ParamField>
+    <ParamField name="timestamp" type="string">
       ISO 8601 timestamp of when the metrics were collected. Cannot be more than 5 minutes in the future. Entries without a timestamp are applied before dated entries, in the order they appear in the request.
-    </ResponseField>
+    </ParamField>
   </Expandable>
 </ParamField>
 
@@ -275,7 +275,7 @@ Returns `204 No Content` when every entry is accepted. If any entry fails valida
 
 ## Platform payloads
 
-The `metrics` body on both metrics endpoints is shaped per platform. Sending the wrong shape for your project returns `422`.
+The metrics payload is shaped per platform. For `POST /projects/@me/metrics`, send this payload as the entire request body. For the batch metrics endpoint, send the same payload under `data[].metrics`. Sending the wrong shape for your project returns `422`.
 
 ### Discord bot
 
