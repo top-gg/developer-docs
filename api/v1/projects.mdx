@@ -136,6 +136,10 @@ Returns `204 No Content` on success. No response body is returned.
 
 Creates a new announcement for your project. Announcements appear on your project's page and can be used to notify users about updates, new features, or other news.
 
+<Note>
+  You can create at most one announcement every **4 hours**. Attempts during the cooldown period receive a `429 Too Many Requests` response with a `Retry-After` header indicating how many seconds to wait.
+</Note>
+
 ```bash
 curl -X PUT https://top.gg/api/v1/projects/@me/announcements \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
@@ -187,6 +191,7 @@ curl -X PUT https://top.gg/api/v1/projects/@me/announcements \
 | `400` | Invalid project token |
 | `404` | Project not found |
 | `422` | Validation error (title or content length violations) |
+| `429` | Rate limited - only one announcement every 4 hours |
 
 ---
 
