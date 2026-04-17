@@ -190,6 +190,147 @@ curl -X PUT https://top.gg/api/v1/projects/@me/announcements \
 
 ---
 
+## POST /projects/@me/metrics
+
+Submits a single metrics payload for your project. Use this to push fresh numbers after an event such as joining or leaving a guild or a player connecting.
+
+```bash
+curl -X POST https://top.gg/api/v1/projects/@me/metrics \
+  -H "Authorization: Bearer $TOPGG_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "server_count": 2133,
+    "shard_count": 8
+  }'
+```
+
+### Request body
+
+The body must match the authenticated project's platform. See the [platform payloads](#platform-payloads) section below for the supported fields per platform.
+
+### Response
+
+Returns `204 No Content` on success. No response body is returned.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `400` | Invalid project token |
+| `404` | Project not found |
+| `422` | Payload was malformed, empty, or did not match the project's platform |
+
+---
+
+## POST /projects/@me/metrics/batch
+
+Submits up to 100 metrics entries in a single request. Entries are applied in ascending timestamp order, so you can backfill gaps or push buffered samples after a network interruption.
+
+```bash
+curl -X POST https://top.gg/api/v1/projects/@me/metrics/batch \
+  -H "Authorization: Bearer $TOPGG_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": [
+      {
+        "timestamp": "2026-04-17T10:00:00Z",
+        "metrics": { "server_count": 2130 }
+      },
+      {
+        "timestamp": "2026-04-17T10:05:00Z",
+        "metrics": { "server_count": 2133, "shard_count": 8 }
+      }
+    ]
+  }'
+```
+
+### Request body
+
+<ParamField body="data" type="object[]" required>
+  The batch of metrics entries. Must contain between 1 and 100 entries.
+
+  <Expandable title="Entry object properties">
+    <ResponseField name="metrics" type="object" required>
+      The metrics payload for this entry. Must be a JSON object matching the project's platform shape. See [platform payloads](#platform-payloads).
+    </ResponseField>
+    <ResponseField name="timestamp" type="string">
+      ISO 8601 timestamp of when the metrics were collected. Cannot be more than 5 minutes in the future. Entries without a timestamp are applied before dated entries, in the order they appear in the request.
+    </ResponseField>
+  </Expandable>
+</ParamField>
+
+### Response
+
+Returns `204 No Content` when every entry is accepted. If any entry fails validation, processing stops and the request returns `422`.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `400` | Invalid project token |
+| `404` | Project not found |
+| `422` | Batch was empty, contained more than 100 entries, or contained an invalid entry |
+
+---
+
+## Platform payloads
+
+The `metrics` body on both metrics endpoints is shaped per platform. Sending the wrong shape for your project returns `422`.
+
+### Discord bot
+
+Use for projects with `platform: "discord"` and `type: "bot"`. At least one field is required.
+
+<ParamField body="server_count" type="integer">
+  Total number of servers the bot is currently in. Must be zero or greater.
+</ParamField>
+
+<ParamField body="shard_count" type="integer">
+  Total number of shards the bot is currently running. Must be zero or greater.
+</ParamField>
+
+```json
+{
+  "server_count": 2133,
+  "shard_count": 8
+}
+```
+
+### Discord server
+
+Use for projects with `platform: "discord"` and `type: "server"`. At least one field is required.
+
+<ParamField body="member_count" type="integer">
+  Total number of members in the server. Must be zero or greater.
+</ParamField>
+
+<ParamField body="online_count" type="integer">
+  Number of members currently online. Must be zero or greater and cannot exceed `member_count` when both are provided.
+</ParamField>
+
+```json
+{
+  "member_count": 14820,
+  "online_count": 3120
+}
+```
+
+### Roblox game
+
+Use for projects with `platform: "roblox"` and `type: "game"`.
+
+<ParamField body="player_count" type="integer" required>
+  Current number of players in the game. Must be zero or greater.
+</ParamField>
+
+```json
+{
+  "player_count": 428
+}
+```
+
+---
+
 ## POST /projects/@me/commands
 
 Updates the slash command definitions for your bot project on Top.gg. This endpoint is only applicable to `bot`-type projects on the `discord` platform.
