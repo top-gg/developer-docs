@@ -195,12 +195,12 @@ curl -X POST https://top.gg/api/v1/projects/@me/announcements \
 
 ---
 
-## PUT /projects/@me/metrics
+## PATCH /projects/@me/metrics
 
 Submits a single metrics payload for your project. Use this to push fresh numbers after an event such as joining or leaving a guild or a player connecting.
 
 ```bash
-curl -X PUT https://top.gg/api/v1/projects/@me/metrics \
+curl -X PATCH https://top.gg/api/v1/projects/@me/metrics \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -280,7 +280,7 @@ Returns `204 No Content` when every entry is accepted. If any entry fails valida
 
 ## Platform payloads
 
-The metrics payload is shaped per platform. For `PUT /projects/@me/metrics`, send this payload as the entire request body. For the batch metrics endpoint, send the same payload under `data[].metrics`. Sending the wrong shape for your project returns `422`.
+The metrics payload is shaped per platform. For `PATCH /projects/@me/metrics`, send this payload as the request body. For the batch metrics endpoint, send the same payload under `data[].metrics`. Sending the wrong shape for your project returns `422`.
 
 ### Discord bot
 
