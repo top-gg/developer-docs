@@ -132,7 +132,7 @@ Returns `204 No Content` on success. No response body is returned.
 
 ---
 
-## PUT /projects/@me/announcements
+## POST /projects/@me/announcements
 
 Creates a new announcement for your project. Announcements appear on your project's page and can be used to notify users about updates, new features, or other news.
 
@@ -141,7 +141,7 @@ Creates a new announcement for your project. Announcements appear on your projec
 </Note>
 
 ```bash
-curl -X PUT https://top.gg/api/v1/projects/@me/announcements \
+curl -X POST https://top.gg/api/v1/projects/@me/announcements \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -195,12 +195,12 @@ curl -X PUT https://top.gg/api/v1/projects/@me/announcements \
 
 ---
 
-## POST /projects/@me/metrics
+## PATCH /projects/@me/metrics
 
 Submits a single metrics payload for your project. Use this to push fresh numbers after an event such as joining or leaving a guild or a player connecting.
 
 ```bash
-curl -X POST https://top.gg/api/v1/projects/@me/metrics \
+curl -X PATCH https://top.gg/api/v1/projects/@me/metrics \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -280,7 +280,7 @@ Returns `204 No Content` when every entry is accepted. If any entry fails valida
 
 ## Platform payloads
 
-The metrics payload is shaped per platform. For `POST /projects/@me/metrics`, send this payload as the entire request body. For the batch metrics endpoint, send the same payload under `data[].metrics`. Sending the wrong shape for your project returns `422`.
+The metrics payload is shaped per platform. For `PATCH /projects/@me/metrics`, send this payload as the request body. For the batch metrics endpoint, send the same payload under `data[].metrics`. Sending the wrong shape for your project returns `422`.
 
 ### Discord bot
 
@@ -336,12 +336,12 @@ Use for projects with `platform: "roblox"` and `type: "game"`.
 
 ---
 
-## POST /projects/@me/commands
+## PUT /projects/@me/commands
 
-Updates the slash command definitions for your bot project on Top.gg. This endpoint is only applicable to `bot`-type projects on the `discord` platform.
+Overwrites the list of slash command definitions for your bot project on Top.gg. This endpoint is only applicable to `bot`-type projects on the `discord` platform.
 
 ```bash
-curl -X POST https://top.gg/api/v1/projects/@me/commands \
+curl -X PUT https://top.gg/api/v1/projects/@me/commands \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '[{ "name": "ping", "description": "Replies with Pong!" }]'
