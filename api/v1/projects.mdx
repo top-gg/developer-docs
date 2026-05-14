@@ -146,7 +146,8 @@ curl -X POST https://top.gg/api/v1/projects/@me/announcements \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Version 2.0 Released!",
-    "content": "We just released version 2.0 with a bunch of new features and improvements."
+    "content": "We just released version 2.0 with a bunch of new features and improvements.",
+    "category": "new_feature"
   }'
 ```
 
@@ -158,6 +159,10 @@ curl -X POST https://top.gg/api/v1/projects/@me/announcements \
 
 <ParamField body="content" type="string" required>
   The announcement body text. Must be between 10 and 2,000 characters.
+</ParamField>
+
+<ParamField body="category" type="string">
+  The category to publish the announcement under. One of `announcement`, `event`, or `new_feature`. Defaults to `announcement` when omitted.
 </ParamField>
 
 ### Response fields
@@ -190,7 +195,7 @@ curl -X POST https://top.gg/api/v1/projects/@me/announcements \
 |--------|-------------|
 | `400` | Invalid project token |
 | `404` | Project not found |
-| `422` | Validation error (title or content length violations) |
+| `422` | Validation error (title or content length violations, or unsupported category) |
 | `429` | Rate limited - only one announcement every 4 hours |
 
 ---
