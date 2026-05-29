@@ -63,50 +63,6 @@ curl "https://top.gg/api/bots?limit=10&sort=-points" \
 
 ---
 
-## GET /bots/:bot_id
-
-Returns a single Bot object by its Discord application ID. Returns `404 Not Found` if no bot with that ID is listed on Top.gg.
-
-```bash
-curl https://top.gg/api/bots/264811613708746752 \
-  -H "Authorization: your-topgg-token-here"
-```
-
-See the [Bot structure](#bot-structure) section below for the full list of fields.
-
----
-
-## GET /bots/:bot_id/votes
-
-Returns the last 1000 unique voters for the specified bot. Each entry includes the voter's username, Discord user ID, and avatar hash.
-
-```bash
-curl https://top.gg/api/bots/264811613708746752/votes \
-  -H "Authorization: your-topgg-token-here"
-```
-
-### Response
-
-Returns an array of voter objects:
-
-<ResponseField name="username" type="string" required>
-  The voter's Discord username.
-</ResponseField>
-
-<ResponseField name="id" type="string" required>
-  The voter's Discord Snowflake ID.
-</ResponseField>
-
-<ResponseField name="avatar" type="string" required>
-  The voter's Discord avatar hash.
-</ResponseField>
-
-<Warning>
-  This endpoint returns only the **last 1,000 unique voters** and does not include double votes or weekend bonus votes. If your bot receives more than 1,000 votes per month, you must use [webhooks](/webhooks/overview) and maintain your own vote cache instead of relying on this endpoint.
-</Warning>
-
----
-
 ## GET /bots/:bot_id/stats
 
 Returns server and shard statistics for the specified bot.
