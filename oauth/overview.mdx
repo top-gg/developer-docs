@@ -20,13 +20,13 @@ The full flow with every parameter is on the [authorization](/oauth/authorizatio
 
 ## What you can access
 
-Access tokens work with the same v1 API as project tokens, with a project ID in the path instead of `@me`:
+Access tokens work with the same v1 API as project tokens. Address endpoints by project ID; project tokens use `@me` instead:
 
-| Project token | OAuth access token |
+| OAuth access token | Project token |
 | --- | --- |
-| `GET /projects/@me` | `GET /projects/:project_id` |
-| `GET /projects/@me/votes` | `GET /projects/:project_id/votes` |
-| `PATCH /projects/@me/metrics` | `PATCH /projects/:project_id/metrics` |
+| `GET /projects/:project_id` | `GET /projects/@me` |
+| `GET /projects/:project_id/votes` | `GET /projects/@me/votes` |
+| `PATCH /projects/:project_id/metrics` | `PATCH /projects/@me/metrics` |
 
 Each endpoint requires a [scope](/oauth/scopes) the user granted. On top of the project endpoints, OAuth tokens can call:
 
