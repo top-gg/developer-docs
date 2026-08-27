@@ -1,21 +1,38 @@
 ---
 title: "REST API Endpoints for Projects"
 sidebarTitle: "Projects"
-description: "Use the /projects/@me endpoints to retrieve project details, update headline and page content, create announcements, and update Discord slash commands. Requires a valid Bearer token."
+description: "Use the /projects/:project_id endpoints to retrieve project details, update headline and page content, create announcements, and update Discord slash commands. Requires a valid Bearer token."
 ---
 
-The projects endpoints let you retrieve your project's details, update its headline and page content, create announcements, and push updated command definitions to Top.gg. These endpoints are scoped to the authenticated token, so you can only access your own project.
+The projects endpoints let you retrieve a project's details, update its headline and page content, create announcements, and push updated command definitions to Top.gg. `:project_id` is the Top.gg project ID of a project your [OAuth authorization](/oauth/overview) covers; each endpoint states its required [scope](/oauth/scopes).
+
+A project that is not part of the authorization returns `404`, a missing scope returns `403`.
+
+## Project tokens
+
+With a legacy project token, use `@me` in place of `:project_id`. The token itself identifies the project. Project tokens only work with `@me`, and OAuth access tokens only work with explicit project IDs. Request bodies and responses are identical.
+
+| OAuth access token | Project token |
+| --- | --- |
+| `GET /projects/:project_id` | `GET /projects/@me` |
+| `PATCH /projects/:project_id` | `PATCH /projects/@me` |
+| `POST /projects/:project_id/announcements` | `POST /projects/@me/announcements` |
+| `PATCH /projects/:project_id/metrics` | `PATCH /projects/@me/metrics` |
+| `POST /projects/:project_id/metrics/batch` | `POST /projects/@me/metrics/batch` |
+| `PUT /projects/:project_id/commands` | `PUT /projects/@me/commands` |
 
 <Info>
   Bot endpoints are subject to stricter rate limits than other v1 endpoints. Stay within the published limits to avoid `429 Too Many Requests` responses.
 </Info>
 
-## GET /projects/@me
+## GET /projects/:project_id
+
+**OAuth scope:** `project.information.read`
 
 Returns the project associated with your current token.
 
 ```bash
-curl https://top.gg/api/v1/projects/@me \
+curl https://top.gg/api/v1/projects/218109768489992192 \
   -H "Authorization: Bearer $TOPGG_TOKEN"
 ```
 
@@ -80,12 +97,14 @@ curl https://top.gg/api/v1/projects/@me \
 
 ---
 
-## PATCH /projects/@me
+## PATCH /projects/:project_id
+
+**OAuth scope:** `project.information.write`
 
 Updates the headline and/or page content for your project. Both fields are locale-keyed, so you can set content for multiple languages in a single request.
 
 ```bash
-curl -X PATCH https://top.gg/api/v1/projects/@me \
+curl -X PATCH https://top.gg/api/v1/projects/218109768489992192 \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -132,7 +151,9 @@ Returns `204 No Content` on success. No response body is returned.
 
 ---
 
-## POST /projects/@me/announcements
+## POST /projects/:project_id/announcements
+
+**OAuth scope:** `project.announcements.write`
 
 Creates a new announcement for your project. Announcements appear on your project's page and can be used to notify users about updates, new features, or other news.
 
@@ -141,7 +162,7 @@ Creates a new announcement for your project. Announcements appear on your projec
 </Note>
 
 ```bash
-curl -X POST https://top.gg/api/v1/projects/@me/announcements \
+curl -X POST https://top.gg/api/v1/projects/218109768489992192/announcements \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -200,12 +221,14 @@ curl -X POST https://top.gg/api/v1/projects/@me/announcements \
 
 ---
 
-## PATCH /projects/@me/metrics
+## PATCH /projects/:project_id/metrics
+
+**OAuth scope:** `project.metrics.write`
 
 Submits a single metrics payload for your project. Use this to push fresh numbers after an event such as joining or leaving a guild or a player connecting.
 
 ```bash
-curl -X PATCH https://top.gg/api/v1/projects/@me/metrics \
+curl -X PATCH https://top.gg/api/v1/projects/218109768489992192/metrics \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -232,12 +255,14 @@ Returns `204 No Content` on success. No response body is returned.
 
 ---
 
-## POST /projects/@me/metrics/batch
+## POST /projects/:project_id/metrics/batch
+
+**OAuth scope:** `project.metrics.write`
 
 Submits up to 100 metrics entries in a single request. Entries without a `timestamp` are applied first in the order they appear in the request. Entries with a `timestamp` are applied afterward in ascending timestamp order, so you can backfill gaps or push buffered samples after a network interruption.
 
 ```bash
-curl -X POST https://top.gg/api/v1/projects/@me/metrics/batch \
+curl -X POST https://top.gg/api/v1/projects/218109768489992192/metrics/batch \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -285,7 +310,7 @@ Returns `204 No Content` when every entry is accepted. If any entry fails valida
 
 ## Platform payloads
 
-The metrics payload is shaped per platform. For `PATCH /projects/@me/metrics`, send this payload as the request body. For the batch metrics endpoint, send the same payload under `data[].metrics`. Sending the wrong shape for your project returns `422`.
+The metrics payload is shaped per platform. For `PATCH /projects/:project_id/metrics`, send this payload as the request body. For the batch metrics endpoint, send the same payload under `data[].metrics`. Sending the wrong shape for your project returns `422`.
 
 ### Discord bot
 
@@ -341,12 +366,14 @@ Use for projects with `platform: "roblox"` and `type: "game"`.
 
 ---
 
-## PUT /projects/@me/commands
+## PUT /projects/:project_id/commands
+
+**OAuth scope:** `project.information.write`
 
 Overwrites the list of slash command definitions for your bot project on Top.gg. This endpoint is only applicable to `bot`-type projects on the `discord` platform.
 
 ```bash
-curl -X PUT https://top.gg/api/v1/projects/@me/commands \
+curl -X PUT https://top.gg/api/v1/projects/218109768489992192/commands \
   -H "Authorization: Bearer $TOPGG_TOKEN" \
   -H "Content-Type: application/json" \
   -d '[{ "name": "ping", "description": "Replies with Pong!" }]'
