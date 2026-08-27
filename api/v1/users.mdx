@@ -1,0 +1,177 @@
+---
+title: "Users Endpoint for the Top.gg v1 API"
+sidebarTitle: "Users"
+description: "Identify the Top.gg user who authorized your OAuth application, list their projects, and create draft projects for them."
+---
+
+The users endpoints work with the user behind an OAuth access token. They require OAuth authentication; project tokens cannot call them.
+
+---
+
+## GET /users/@me
+
+**Required scope:** `user.identify`
+
+Returns the user who authorized your application.
+
+```bash
+curl https://top.gg/api/v1/users/@me \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response fields
+
+<ResponseField name="id" type="string" required>
+  The user's Top.gg Snowflake ID.
+</ResponseField>
+
+<ResponseField name="username" type="string" required>
+  The user's Top.gg username.
+</ResponseField>
+
+<ResponseField name="avatar" type="string">
+  Avatar URL, or `null` when the user has none.
+</ResponseField>
+
+<ResponseField name="connections" type="object[]" required>
+  Platform accounts linked to the user.
+
+  <Expandable title="Connection object properties">
+    <ResponseField name="platform" type="string" required>
+      The platform. One of `discord` or `roblox`.
+    </ResponseField>
+    <ResponseField name="id" type="string" required>
+      The user's ID on that platform, for example their Discord user ID.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "id": "1234567890",
+  "username": "example",
+  "avatar": "https://cdn.top.gg/avatars/1234567890.webp",
+  "connections": [
+    {
+      "platform": "discord",
+      "id": "1234567890"
+    }
+  ]
+}
+```
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `401` | Missing, expired, or revoked access token |
+| `403` | The `user.identify` scope was not granted |
+| `404` | The user no longer exists |
+
+---
+
+## GET /users/@me/projects
+
+**Required scope:** `user.projects.read`
+
+Lists the projects owned by the user.
+
+```bash
+curl https://top.gg/api/v1/users/@me/projects   -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response fields
+
+Returns an array of project objects.
+
+<ResponseField name="id" type="string" required>
+  The Top.gg project ID.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  The project name.
+</ResponseField>
+
+<ResponseField name="platform" type="string" required>
+  The platform. One of `discord`, `roblox`, or `minecraft`.
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  The project type, for example `bot`, `server`, or `game`.
+</ResponseField>
+
+<ResponseField name="headline" type="string" required>
+  The project headline.
+</ResponseField>
+
+<ResponseField name="review_status" type="string" required>
+  The review state, for example `draft`, `in_review`, or `approved`.
+</ResponseField>
+
+### Example response
+
+```json
+[
+  {
+    "id": "1234567890",
+    "name": "Example Bot",
+    "platform": "discord",
+    "type": "bot",
+    "headline": "A bot that does things.",
+    "review_status": "approved"
+  }
+]
+```
+
+---
+
+## POST /users/@me/projects
+
+**Required scope:** `user.projects.write`
+
+Creates a draft project for the user.
+
+Name, icon, and missing descriptions are fetched from the platform. The project starts as a draft; the user completes the listing and submits it for review in their Top.gg dashboard.
+
+```bash
+curl -X POST https://top.gg/api/v1/users/@me/projects   -H "Authorization: Bearer $ACCESS_TOKEN"   -H "Content-Type: application/json"   -d '{
+    "platform": "discord",
+    "type": "bot",
+    "external_id": "1234567890"
+  }'
+```
+
+### Request body
+
+<ParamField body="platform" type="string" required>
+  The platform the project lives on. One of `discord`, `roblox`, or `minecraft`.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  The project type. `bot` or `server` for Discord, `game` for Roblox, `game_server` for Minecraft.
+</ParamField>
+
+<ParamField body="external_id" type="string" required>
+  The project's ID on the platform, for example the Discord application ID.
+</ParamField>
+
+<ParamField body="headline" type="string">
+  The headline shown on the project page, 3 to 140 characters. Defaults to the description found on the platform.
+</ParamField>
+
+<ParamField body="page_content" type="string">
+  The page content in Markdown, 300 to 50,000 characters. Defaults to the description found on the platform.
+</ParamField>
+
+### Response
+
+Returns `201 Created` with the same project object as the list endpoint, with `review_status` set to `draft`.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `409` | A project with this platform ID is already listed on Top.gg |
+| `422` | Validation error, unsupported platform and type combination, or the project was not found on the platform |

@@ -1,0 +1,160 @@
+---
+title: "Authorize Users and Obtain OAuth Tokens"
+sidebarTitle: "Authorization"
+description: "Register your application, send users through the Top.gg consent screen with PKCE, exchange the code for tokens, and refresh or revoke them."
+---
+
+Top.gg implements the OAuth 2.1 authorization code flow. PKCE is required for every client, and the token endpoint only accepts server-side calls with your client secret.
+
+## Register your application
+
+<Steps>
+  <Step title="Create an application">
+    Open the [developer portal](https://top.gg/developer/applications) and create an application. You can own it yourself or assign it to one of your teams.
+  </Step>
+  <Step title="Copy the client ID and client secret">
+    The client secret is shown once when you create it. Store it server-side. You can rotate it later, which invalidates the previous secret immediately.
+  </Step>
+  <Step title="Add redirect URIs">
+    Add every URL Top.gg may redirect back to. Redirect URIs must be absolute `https` URLs (or `http` on loopback for local development) without fragments. Up to 10 per application.
+  </Step>
+</Steps>
+
+<Warning>
+  Never ship the client secret in a browser, mobile app, or public repository. Every token exchange must happen from your backend.
+</Warning>
+
+## Send the user to the authorization page
+
+Redirect the user to `https://top.gg/oauth2/authorize` with the following query parameters:
+
+```text
+https://top.gg/oauth2/authorize
+  ?client_id=YOUR_CLIENT_ID
+  &response_type=code
+  &redirect_uri=https://example.com/oauth/callback
+  &scope=project.votes.read+project.webhooks.write
+  &state=RANDOM_STATE
+  &code_challenge=BASE64URL(SHA256(code_verifier))
+  &code_challenge_method=S256
+  &project_ids=218109768489992192
+```
+
+<ParamField query="client_id" type="string" required>
+  Your application's client ID.
+</ParamField>
+
+<ParamField query="response_type" type="string" required>
+  Must be `code`.
+</ParamField>
+
+<ParamField query="redirect_uri" type="string" required>
+  One of the redirect URIs registered for your application. Must match exactly.
+</ParamField>
+
+<ParamField query="scope" type="string" required>
+  The [scopes](/oauth/scopes) to request, separated by spaces (`+` in the URL). Request only what your application uses. The consent screen lists every scope to the user.
+</ParamField>
+
+<ParamField query="state" type="string" required>
+  An opaque value you generate per authorization request. Top.gg sends it back unchanged. Verify it on the callback to prevent CSRF.
+</ParamField>
+
+<ParamField query="code_challenge" type="string" required>
+  PKCE challenge. Generate a random `code_verifier` of 43 to 128 characters, then send `base64url(sha256(code_verifier))` without padding.
+</ParamField>
+
+<ParamField query="code_challenge_method" type="string" required>
+  Must be `S256`.
+</ParamField>
+
+<ParamField query="project_ids" type="string">
+  Comma-separated Top.gg project IDs to preselect on the consent screen. The user can change the selection. Useful when the user starts the flow from a specific project in your application.
+</ParamField>
+
+The user signs in to Top.gg if needed, picks the projects to share, and approves or cancels. A user can only grant projects where they are an owner or admin.
+
+## Handle the callback
+
+On approval, Top.gg redirects to your `redirect_uri`:
+
+```text
+https://example.com/oauth/callback?code=AUTH_CODE&state=RANDOM_STATE
+```
+
+If the user cancels:
+
+```text
+https://example.com/oauth/callback?error=access_denied&state=RANDOM_STATE
+```
+
+Verify `state` before doing anything else. The code is single use and expires after 60 seconds.
+
+## Exchange the code for tokens
+
+Call the token endpoint from your backend with the code and the original `code_verifier`:
+
+```bash
+curl -X POST https://top.gg/api/v1/oauth2/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d grant_type=authorization_code \
+  -d code=AUTH_CODE \
+  -d redirect_uri=https://example.com/oauth/callback \
+  -d code_verifier=CODE_VERIFIER \
+  -d client_id=YOUR_CLIENT_ID \
+  -d client_secret=YOUR_CLIENT_SECRET
+```
+
+You can also send the client credentials as HTTP Basic authentication instead of form fields.
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 604800,
+  "refresh_token": "k2Ll3...",
+  "scope": "project.votes.read project.webhooks.write"
+}
+```
+
+Store the refresh token securely. The access token is valid for seven days. The full parameter and error reference is on the [OAuth endpoints](/api/v1/oauth) page.
+
+## Call the API
+
+Pass the access token as a Bearer token, exactly like a project token:
+
+```bash
+curl https://top.gg/api/v1/projects/218109768489992192 \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+Requests for a project the user did not grant, or with a scope the user did not approve, return `404` or `403` respectively.
+
+## Refresh the access token
+
+```bash
+curl -X POST https://top.gg/api/v1/oauth2/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d grant_type=refresh_token \
+  -d refresh_token=REFRESH_TOKEN \
+  -d client_id=YOUR_CLIENT_ID \
+  -d client_secret=YOUR_CLIENT_SECRET
+```
+
+The response has the same shape as the code exchange and includes a new refresh token. Replace the stored one; refresh tokens rotate on every use and the previous one stops working.
+
+## Revoke an authorization
+
+```bash
+curl -X POST https://top.gg/api/v1/oauth2/revoke \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d token=REFRESH_TOKEN \
+  -d client_id=YOUR_CLIENT_ID \
+  -d client_secret=YOUR_CLIENT_SECRET
+```
+
+Revoking the refresh token revokes the authorization and every access token issued for it. Users can also revoke your application from their Top.gg settings.
+
+## Add more projects later
+
+Send the user through the authorization page again. The consent screen shows the projects already granted, and the user can add or remove projects. The new authorization replaces the previous one for your application, so exchange the new code and discard the old refresh token.

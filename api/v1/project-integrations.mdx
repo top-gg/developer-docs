@@ -1,0 +1,107 @@
+---
+title: "Manage Project Integrations with OAuth"
+sidebarTitle: "Project integrations"
+description: "List, connect, and disconnect Top.gg integrations on projects that authorized your OAuth application."
+---
+
+The project integrations endpoints let your application connect an approved [integration](/webhooks/integrations) to a user's project, the same as clicking **Connect** in the dashboard. They require an OAuth access token; see the [OAuth overview](/oauth/overview).
+
+Your application can disconnect only the integrations it connected itself.
+
+---
+
+## GET /projects/:project_id/integrations
+
+**Required scope:** `project.integrations.read`
+
+Lists the integrations available for the project and whether each one is connected.
+
+```bash
+curl https://top.gg/api/v1/projects/218109768489992192/integrations \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response fields
+
+Returns an array of integration objects.
+
+<ResponseField name="id" type="string" required>
+  The integration ID.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  The integration name.
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Short description of what the integration does.
+</ResponseField>
+
+<ResponseField name="icon_url" type="string" required>
+  Icon URL.
+</ResponseField>
+
+<ResponseField name="connected" type="boolean" required>
+  Whether the integration is connected to the project.
+</ResponseField>
+
+### Example response
+
+```json
+[
+  {
+    "id": "1234567890",
+    "name": "Example integration",
+    "description": "Sends vote events to your service.",
+    "icon_url": "https://cdn.top.gg/integrations/example.webp",
+    "connected": true
+  }
+]
+```
+
+---
+
+## PUT /projects/:project_id/integrations/:integration_id
+
+**Required scope:** `project.integrations.write`
+
+Connects an integration to the project. Top.gg runs the integration handshake and starts delivering events to it.
+
+```bash
+curl -X PUT https://top.gg/api/v1/projects/218109768489992192/integrations/1234567890 \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response
+
+Returns `204 No Content` on success.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `404` | The project is not part of the authorization, or the integration does not exist |
+| `409` | The integration is already connected, the project reached its webhook limit, or the integration rejected the handshake |
+
+---
+
+## DELETE /projects/:project_id/integrations/:integration_id
+
+**Required scope:** `project.integrations.write`
+
+Disconnects an integration your application connected. The integration receives an `integration.delete` event.
+
+```bash
+curl -X DELETE https://top.gg/api/v1/projects/218109768489992192/integrations/1234567890 \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response
+
+Returns `204 No Content` on success.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `404` | The project is not part of the authorization, or the integration was not connected by your application |
