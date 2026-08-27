@@ -72,6 +72,14 @@ https://top.gg/oauth2/authorize
   Comma-separated Top.gg project IDs to preselect on the consent screen. The user can change the selection. Useful when the user starts the flow from a specific project in your application.
 </ParamField>
 
+<ParamField query="platform" type="string">
+  Platform for `platform_ids`, for example `discord`. Use both together when you know the external ID but not the Top.gg project ID.
+</ParamField>
+
+<ParamField query="platform_ids" type="string">
+  Comma-separated external IDs on `platform`, for example Discord bot IDs. Matching projects are preselected on the consent screen, same behavior as `project_ids`. Unknown IDs are ignored.
+</ParamField>
+
 The user signs in to Top.gg if needed, picks the projects to share, and approves or cancels. A user can only grant projects where they are an owner or admin.
 
 ## Handle the callback
