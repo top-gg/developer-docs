@@ -79,7 +79,8 @@ curl https://top.gg/api/v1/users/@me \
 Lists the projects owned by the user.
 
 ```bash
-curl https://top.gg/api/v1/users/@me/projects   -H "Authorization: Bearer $ACCESS_TOKEN"
+curl https://top.gg/api/v1/users/@me/projects \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 ### Response fields
@@ -88,6 +89,10 @@ Returns an array of project objects.
 
 <ResponseField name="id" type="string" required>
   The Top.gg project ID.
+</ResponseField>
+
+<ResponseField name="platform_id" type="string" required>
+  The project's ID on its platform, for example the Discord application ID.
 </ResponseField>
 
 <ResponseField name="name" type="string" required>
@@ -115,7 +120,8 @@ Returns an array of project objects.
 ```json
 [
   {
-    "id": "1234567890",
+    "id": "218109768489992192",
+    "platform_id": "1234567890",
     "name": "Example Bot",
     "platform": "discord",
     "type": "bot",
@@ -136,10 +142,13 @@ Creates a draft project for the user.
 Name, icon, and missing descriptions are fetched from the platform. The project starts as a draft; the user completes the listing and submits it for review in their Top.gg dashboard.
 
 ```bash
-curl -X POST https://top.gg/api/v1/users/@me/projects   -H "Authorization: Bearer $ACCESS_TOKEN"   -H "Content-Type: application/json"   -d '{
+curl -X POST https://top.gg/api/v1/users/@me/projects \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
     "platform": "discord",
     "type": "bot",
-    "external_id": "1234567890"
+    "platform_id": "1234567890"
   }'
 ```
 
@@ -153,7 +162,7 @@ curl -X POST https://top.gg/api/v1/users/@me/projects   -H "Authorization: Beare
   The project type. `bot` or `server` for Discord, `game` for Roblox, `game_server` for Minecraft.
 </ParamField>
 
-<ParamField body="external_id" type="string" required>
+<ParamField body="platform_id" type="string" required>
   The project's ID on the platform, for example the Discord application ID.
 </ParamField>
 
