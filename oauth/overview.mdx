@@ -30,6 +30,7 @@ Access tokens work with the same v1 API as project tokens. Address endpoints by 
 
 Each endpoint requires a [scope](/oauth/scopes) the user granted. On top of the project endpoints, OAuth tokens can call:
 
+- [`GET /projects`](/api/v1/projects) to list the projects the user granted
 - [`GET /users/@me`](/api/v1/users) to identify the user who authorized you
 - [`/users/@me/projects`](/api/v1/users) to list the user's projects and create drafts for them
 - [Project webhooks](/api/v1/project-webhooks) to create and manage vote webhooks

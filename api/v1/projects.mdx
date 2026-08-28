@@ -25,6 +25,55 @@ With a legacy project token, use `@me` in place of `:project_id`. The token itse
   Bot endpoints are subject to stricter rate limits than other v1 endpoints. Stay within the published limits to avoid `429 Too Many Requests` responses.
 </Info>
 
+## GET /projects
+
+**OAuth scope:** none, any valid access token
+
+Lists the projects the user granted your application. The set only changes when the user goes through authorization again, so fetch it once after the token exchange and store it. Use the returned `id` on the project endpoints.
+
+Not available with project tokens.
+
+```bash
+curl https://top.gg/api/v1/projects \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response fields
+
+<ResponseField name="id" type="string" required>
+  The Top.gg project ID.
+</ResponseField>
+
+<ResponseField name="platform_id" type="string" required>
+  The project's ID on its platform, for example the Discord application ID.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  The project name.
+</ResponseField>
+
+<ResponseField name="platform" type="string" required>
+  The platform the project belongs to. One of `discord` or `roblox`.
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  The project type. One of `bot`, `server`, or `game`.
+</ResponseField>
+
+### Example response
+
+```json
+[
+  {
+    "id": "218109768489992192",
+    "platform_id": "1234567890",
+    "name": "Example Bot",
+    "platform": "discord",
+    "type": "bot"
+  }
+]
+```
+
 ## GET /projects/:project_id
 
 **OAuth scope:** `project.information.read`
