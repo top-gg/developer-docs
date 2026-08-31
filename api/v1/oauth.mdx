@@ -97,11 +97,33 @@ curl -X POST https://top.gg/api/v1/oauth2/token \
 </ResponseField>
 
 <ResponseField name="refresh_token" type="string" required>
-  New refresh token. Replace the stored one; the previous refresh token is no longer valid.
+  New refresh token. Replace the stored one, the previous refresh token is no longer valid.
 </ResponseField>
 
 <ResponseField name="scope" type="string" required>
   Space-separated scopes the access token carries.
+</ResponseField>
+
+<ResponseField name="project" type="object">
+  The project the user granted. Only returned when exchanging an authorization code. Re-fetch anytime with [GET /projects](/api/v1/projects).
+
+  <Expandable title="Project object properties">
+    <ResponseField name="id" type="string" required>
+      The Top.gg project ID.
+    </ResponseField>
+    <ResponseField name="platform_id" type="string" required>
+      The project's ID on its platform, for example the Discord application ID.
+    </ResponseField>
+    <ResponseField name="name" type="string" required>
+      The project name.
+    </ResponseField>
+    <ResponseField name="platform" type="string" required>
+      The platform the project belongs to. One of `discord` or `roblox`.
+    </ResponseField>
+    <ResponseField name="type" type="string" required>
+      The project type. One of `bot`, `server`, or `game`.
+    </ResponseField>
+  </Expandable>
 </ResponseField>
 
 ### Example response
@@ -112,7 +134,14 @@ curl -X POST https://top.gg/api/v1/oauth2/token \
   "token_type": "Bearer",
   "expires_in": 604800,
   "refresh_token": "k2Ll3...",
-  "scope": "project.votes.read project.webhooks.write"
+  "scope": "project.votes.read project.webhooks.write",
+  "project": {
+    "id": "218109768489992192",
+    "platform_id": "1234567890",
+    "name": "Example Bot",
+    "platform": "discord",
+    "type": "bot"
+  }
 }
 ```
 
@@ -130,7 +159,7 @@ curl -X POST https://top.gg/api/v1/oauth2/token \
 
 ## POST /oauth2/revoke
 
-Revokes an authorization. Pass the refresh token; every access token issued for the same authorization stops working as well.
+Revokes an authorization. Pass the refresh token. Every access token issued for the same authorization stops working as well.
 
 ```bash
 curl -X POST https://top.gg/api/v1/oauth2/revoke \

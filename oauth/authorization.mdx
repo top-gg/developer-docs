@@ -37,7 +37,7 @@ https://top.gg/oauth2/authorize
   &state=RANDOM_STATE
   &code_challenge=BASE64URL(SHA256(code_verifier))
   &code_challenge_method=S256
-  &project_ids=218109768489992192
+  &project_id=218109768489992192
 ```
 
 <ParamField query="client_id" type="string" required>
@@ -68,19 +68,19 @@ https://top.gg/oauth2/authorize
   Must be `S256`.
 </ParamField>
 
-<ParamField query="project_ids" type="string">
-  Comma-separated Top.gg project IDs to preselect on the consent screen. The user can change the selection. Useful when the user starts the flow from a specific project in your application.
+<ParamField query="project_id" type="string">
+  Top.gg project ID to preselect on the consent screen. The user can change the selection. Useful when the user starts the flow from a specific project in your application.
 </ParamField>
 
 <ParamField query="platform" type="string">
-  Platform for `platform_ids`, for example `discord`. Use both together when you know the external ID but not the Top.gg project ID.
+  Platform for `platform_id`, for example `discord`. Use both together when you know the external ID but not the Top.gg project ID.
 </ParamField>
 
-<ParamField query="platform_ids" type="string">
-  Comma-separated external IDs on `platform`, for example Discord bot IDs. Matching projects are preselected on the consent screen, same behavior as `project_ids`. Unknown IDs are ignored.
+<ParamField query="platform_id" type="string">
+  External ID on `platform`, for example a Discord bot ID. The matching project is preselected on the consent screen, same behavior as `project_id`. Unknown IDs are ignored.
 </ParamField>
 
-The user signs in to Top.gg if needed, picks the projects to share, and approves or cancels. A user can only grant projects where they are an owner or admin.
+The user signs in to Top.gg if needed, picks the project to grant, and approves or cancels. A user can only grant projects where they are an owner or admin.
 
 ## Handle the callback
 
@@ -121,9 +121,18 @@ You can also send the client credentials as HTTP Basic authentication instead of
   "token_type": "Bearer",
   "expires_in": 604800,
   "refresh_token": "k2Ll3...",
-  "scope": "project.votes.read project.webhooks.write"
+  "scope": "project.votes.read project.webhooks.write",
+  "project": {
+    "id": "218109768489992192",
+    "platform_id": "1234567890",
+    "name": "Example Bot",
+    "platform": "discord",
+    "type": "bot"
+  }
 }
 ```
+
+`project` is the project the user granted, the same project object [`GET /projects`](/api/v1/projects) returns. Refresh responses do not include it.
 
 Store the refresh token securely. The access token is valid for seven days. The full parameter and error reference is on the [OAuth endpoints](/api/v1/oauth) page.
 
@@ -149,7 +158,7 @@ curl -X POST https://top.gg/api/v1/oauth2/token \
   -d client_secret=YOUR_CLIENT_SECRET
 ```
 
-The response has the same shape as the code exchange and includes a new refresh token. Replace the stored one; refresh tokens rotate on every use and the previous one stops working.
+The response has the same shape as the code exchange and includes a new refresh token. Replace the stored one. Refresh tokens rotate on every use and the previous one stops working.
 
 ## Revoke an authorization
 
@@ -163,6 +172,6 @@ curl -X POST https://top.gg/api/v1/oauth2/revoke \
 
 Revoking the refresh token revokes the authorization and every access token issued for it. Users can also revoke your application from their Top.gg settings.
 
-## Add more projects later
+## Authorize more projects
 
-Send the user through the authorization page again. The consent screen shows the projects already granted, and the user can add or remove projects. The new authorization replaces the previous one for your application, so exchange the new code and discard the old refresh token.
+Each authorization covers one project. To access another project, send the user through the authorization page again. That creates a separate authorization with its own tokens, and existing authorizations are not affected. If the user authorizes a project again, the new authorization replaces the previous one for that project, so exchange the new code and discard that project's old refresh token.
