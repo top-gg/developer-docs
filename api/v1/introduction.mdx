@@ -37,7 +37,7 @@ curl https://top.gg/api/v1/projects/@me \
 
 Project endpoints are addressed by Top.gg project ID, for example `GET /projects/:project_id/votes`. Which form you use depends on your credential:
 
-- With an [OAuth access token](/oauth/overview), always pass the explicit project ID of a project the authorization covers.
+- With an [OAuth access token](/oauth/overview) or an [application token](/oauth/application-token), always pass the explicit project ID of a project the credential covers.
 - With a project token, use `@me` in place of `:project_id`. The token itself identifies the project, and it only works with `@me`.
 
 Request bodies and responses are identical for both forms.

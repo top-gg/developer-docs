@@ -36,6 +36,7 @@
             "pages": [
               "oauth/overview",
               "oauth/authorization",
+              "oauth/application-token",
               "oauth/scopes"
             ]
           },

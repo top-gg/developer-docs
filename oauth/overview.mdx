@@ -51,5 +51,8 @@ Webhooks and integrations are shared between the project owner, the dashboard, a
 | Authorization code | 60 seconds | Single use. Exchange it right away. |
 | Access token | 7 days | Bearer token for API requests, bound to one authorization. |
 | Refresh token | Does not expire | Rotated on every use. Each refresh token works once. |
+| Application token | Does not expire | One per application, works on every granted project. See [application token](/oauth/application-token). |
 
 Revoking a refresh token revokes the whole authorization. The user can also remove your application from their Top.gg settings at any time, which invalidates all tokens immediately.
+
+If your application only acts on projects, the [application token](/oauth/application-token) saves you from storing access tokens entirely: users authorize their projects once, and the single static token covers all of them. Access tokens remain necessary for the `user.*` scopes.

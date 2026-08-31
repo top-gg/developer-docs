@@ -4,9 +4,9 @@ sidebarTitle: "Projects"
 description: "Use the /projects/:project_id endpoints to retrieve project details, update headline and page content, create announcements, and update Discord slash commands. Requires a valid Bearer token."
 ---
 
-The projects endpoints let you retrieve a project's details, update its headline and page content, create announcements, and push updated command definitions to Top.gg. `:project_id` is the Top.gg project ID of a project your [OAuth authorization](/oauth/overview) covers; each endpoint states its required [scope](/oauth/scopes).
+The projects endpoints let you retrieve a project's details, update its headline and page content, create announcements, and push updated command definitions to Top.gg. `:project_id` is the Top.gg project ID of a project your [OAuth authorization](/oauth/overview) covers, and each endpoint states its required [scope](/oauth/scopes).
 
-A project that is not part of the authorization returns `404`, a missing scope returns `403`.
+A project that is not part of the authorization returns `404`. A missing scope returns `403`.
 
 ## Project tokens
 
@@ -27,9 +27,9 @@ With a legacy project token, use `@me` in place of `:project_id`. The token itse
 
 ## GET /projects
 
-**OAuth scope:** none, any valid access token
+**OAuth scope:** none, any valid access token or [application token](/oauth/application-token)
 
-Lists the projects the user granted your application. The set only changes when the user goes through authorization again, so fetch it once after the token exchange and store it. Use the returned `id` on the project endpoints.
+Lists the projects the current credential covers. With an access token that is the single project of the authorization. With an application token it is every project granted to your application, 100 per page.
 
 Not available with project tokens.
 
@@ -38,40 +38,54 @@ curl https://top.gg/api/v1/projects \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
+### Query parameters
+
+<ParamField query="cursor" type="string">
+  Cursor from a previous response to fetch the next page. Only meaningful with an application token.
+</ParamField>
+
 ### Response fields
 
-<ResponseField name="id" type="string" required>
-  The Top.gg project ID.
+<ResponseField name="projects" type="object[]" required>
+  The covered projects.
+
+  <Expandable title="Project object properties">
+    <ResponseField name="id" type="string" required>
+      The Top.gg project ID.
+    </ResponseField>
+    <ResponseField name="platform_id" type="string" required>
+      The project's ID on its platform, for example the Discord application ID.
+    </ResponseField>
+    <ResponseField name="name" type="string" required>
+      The project name.
+    </ResponseField>
+    <ResponseField name="platform" type="string" required>
+      The platform the project belongs to. One of `discord` or `roblox`.
+    </ResponseField>
+    <ResponseField name="type" type="string" required>
+      The project type. One of `bot`, `server`, or `game`.
+    </ResponseField>
+  </Expandable>
 </ResponseField>
 
-<ResponseField name="platform_id" type="string" required>
-  The project's ID on its platform, for example the Discord application ID.
-</ResponseField>
-
-<ResponseField name="name" type="string" required>
-  The project name.
-</ResponseField>
-
-<ResponseField name="platform" type="string" required>
-  The platform the project belongs to. One of `discord` or `roblox`.
-</ResponseField>
-
-<ResponseField name="type" type="string" required>
-  The project type. One of `bot`, `server`, or `game`.
+<ResponseField name="cursor" type="string">
+  Present while more pages exist. Pass it back as the `cursor` query parameter. Keep paging until the cursor is absent. A page can be empty while later pages still hold projects.
 </ResponseField>
 
 ### Example response
 
 ```json
-[
-  {
-    "id": "218109768489992192",
-    "platform_id": "1234567890",
-    "name": "Example Bot",
-    "platform": "discord",
-    "type": "bot"
-  }
-]
+{
+  "projects": [
+    {
+      "id": "218109768489992192",
+      "platform_id": "1234567890",
+      "name": "Example Bot",
+      "platform": "discord",
+      "type": "bot"
+    }
+  ]
+}
 ```
 
 ## GET /projects/:project_id

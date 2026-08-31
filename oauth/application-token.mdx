@@ -1,0 +1,49 @@
+---
+title: "Act on Every Granted Project with an Application Token"
+sidebarTitle: "Application token"
+description: "Use a single static application token to call the API for every project that authorized your application, without managing access tokens per authorization."
+---
+
+The application token is a static credential for your application itself, comparable to a Discord bot token. It works on every project with a live authorization for your application. Users still authorize your application per project through the normal [authorization flow](/oauth/authorization), but your backend no longer needs to store or refresh their tokens to act on those projects.
+
+Use it when your application acts on projects on its own schedule, for example syncing votes or managing webhooks. Use [access tokens](/oauth/authorization) when you act on behalf of a specific user, and for the `user.*` scopes, which never work with an application token.
+
+## Get a token
+
+Applications start without a token. Generate the first one by rotating in the [developer portal](https://top.gg/developers/applications). Rotating always invalidates the previous token immediately and shows the new one exactly once, so store it right away.
+
+Treat the token like a password. Keep it in your secret storage, never in client-side code or your repository. If it leaks, rotate it.
+
+## Call the API
+
+Pass it as a Bearer token on project endpoints, exactly like an access token:
+
+```bash
+curl https://top.gg/api/v1/projects/218109768489992192/votes \
+  -H "Authorization: Bearer $APPLICATION_TOKEN"
+```
+
+A request works when at least one user with a live authorization for that project can still manage it on Top.gg. The available scopes are the combined scopes of those authorizations. If two users authorized the same project with different scopes, your application has both sets.
+
+Actions that carry an author, for example posting an announcement, are attributed to the user whose authorization granted the scope you are using.
+
+Requests for a project without a live authorization return `404`. User endpoints such as `GET /users/@me` return `403` and need an access token.
+
+## List granted projects
+
+`GET /projects` with an application token lists every project your application was granted, 100 per page:
+
+```bash
+curl "https://top.gg/api/v1/projects?cursor=$CURSOR" \
+  -H "Authorization: Bearer $APPLICATION_TOKEN"
+```
+
+The response contains a `cursor` while more pages exist. See the [projects reference](/api/v1/projects) for the full shape.
+
+## Revocation
+
+Everything that revokes an authorization also removes it from the application token's reach, on the next request:
+
+- The user revokes your application for the project.
+- The user loses owner or admin access to the project.
+- You rotate the token. The old one stops working everywhere.
