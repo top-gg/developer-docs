@@ -6,6 +6,10 @@ description: "Register your application, send users through the Top.gg consent s
 
 Top.gg implements the OAuth 2.1 authorization code flow. PKCE is required for every client, and the token endpoint only accepts server-side calls with your client secret.
 
+<Note>
+  PKCE proves that the same application that started an authorization also finishes it. Generate a random `code_verifier` for every authorization, keep it server-side next to your `state`, and send its hash as the `code_challenge` below. The token exchange then requires the original `code_verifier`, so a stolen callback code is useless on its own.
+</Note>
+
 ## Register your application
 
 <Steps>
