@@ -4,16 +4,27 @@ sidebarTitle: "Votes"
 description: "Fetch paginated vote history with cursor-based pagination or check a specific user's vote status and expiry using the Top.gg v1 votes endpoints."
 ---
 
-The votes endpoints let you retrieve a full history of votes for your project or check whether a specific user has voted recently. Vote history is returned in cursor-based pages ordered by creation date. You can also look up an individual user's vote status by their Top.gg or Discord user ID.
+The votes endpoints let you retrieve a full history of votes for a project or check whether a specific user has voted recently. Vote history is returned in cursor-based pages ordered by creation date. You can also look up an individual user's vote status by their Top.gg or Discord user ID. `:project_id` is the Top.gg project ID of a project your [OAuth authorization](/oauth/overview) covers; each endpoint states its required [scope](/oauth/scopes).
+
+## Project tokens
+
+With a legacy project token, use `@me` in place of `:project_id`. The token itself identifies the project. Project tokens only work with `@me`, and OAuth access tokens only work with explicit project IDs. Parameters and responses are identical.
+
+| OAuth access token | Project token |
+| --- | --- |
+| `GET /projects/:project_id/votes` | `GET /projects/@me/votes` |
+| `GET /projects/:project_id/votes/:user_id` | `GET /projects/@me/votes/:user_id` |
 
 ---
 
-## GET /projects/@me/votes
+## GET /projects/:project_id/votes
+
+**OAuth scope:** `project.votes.read`
 
 Returns a cursor-paginated list of votes for your project, ordered by creation date (oldest first within each page).
 
 ```bash
-curl "https://top.gg/api/v1/projects/@me/votes?startDate=2026-01-01T00:00:00Z" \
+curl "https://top.gg/api/v1/projects/218109768489992192/votes?startDate=2026-01-01T00:00:00Z" \
   -H "Authorization: Bearer $TOPGG_TOKEN"
 ```
 
@@ -81,23 +92,25 @@ curl "https://top.gg/api/v1/projects/@me/votes?startDate=2026-01-01T00:00:00Z" \
 To retrieve all votes from a given point in time, start with `startDate` and then use the `cursor` from each response for subsequent requests until you receive an empty `data` array.
 
 ```bash
-# First request — start from a date
-curl "https://top.gg/api/v1/projects/@me/votes?startDate=2026-01-01T00:00:00Z" \
+# First request: start from a date
+curl "https://top.gg/api/v1/projects/218109768489992192/votes?startDate=2026-01-01T00:00:00Z" \
   -H "Authorization: Bearer $TOPGG_TOKEN"
 
-# Subsequent requests — use the returned cursor
-curl "https://top.gg/api/v1/projects/@me/votes?cursor=<cursor-token>" \
+# Subsequent requests: use the returned cursor
+curl "https://top.gg/api/v1/projects/218109768489992192/votes?cursor=<cursor-token>" \
   -H "Authorization: Bearer $TOPGG_TOKEN"
 ```
 
 ---
 
-## GET /projects/@me/votes/:user_id
+## GET /projects/:project_id/votes/:user_id
+
+**OAuth scope:** `project.votes.read`
 
 Returns the most recent vote status for a specific user. Use this to check whether a user has voted before granting in-app rewards or unlocking features.
 
 ```bash
-curl "https://top.gg/api/v1/projects/@me/votes/1234567890?source=discord" \
+curl "https://top.gg/api/v1/projects/218109768489992192/votes/1234567890?source=discord" \
   -H "Authorization: Bearer $TOPGG_TOKEN"
 ```
 

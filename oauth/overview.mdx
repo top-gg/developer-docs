@@ -1,0 +1,58 @@
+---
+title: "Access Top.gg Projects on Behalf of Users with OAuth"
+sidebarTitle: "Overview"
+description: "Use OAuth 2.1 to let Top.gg users authorize your application for their projects and then read votes, manage webhooks, post metrics, and more."
+---
+
+OAuth lets your application act on behalf of a Top.gg user instead of using the project's own API token. A user authorizes your application for one of their projects, and your backend receives tokens for that project. Each project the user grants gets its own authorization and its own tokens.
+
+Use OAuth when you build something for other people's projects, for example a dashboard, a hosting panel, or a bot management tool. Keep using a [project token](/authentication) when you only automate your own project.
+
+## How it works
+
+1. You register an application and get a client ID and client secret.
+2. Your application sends the user to the Top.gg authorization page with the scopes it needs.
+3. The user signs in, selects one of their projects, and approves.
+4. Top.gg redirects back to you with a code. You exchange it for an access token and a refresh token.
+5. You call the v1 API with the access token. Refresh it when it expires.
+
+The full flow with every parameter is on the [authorization](/oauth/authorization) page.
+
+## What you can access
+
+Access tokens work with the same v1 API as project tokens. Address endpoints by project ID. Project tokens use `@me` instead:
+
+| OAuth access token | Project token |
+| --- | --- |
+| `GET /projects/:project_id` | `GET /projects/@me` |
+| `GET /projects/:project_id/votes` | `GET /projects/@me/votes` |
+| `PATCH /projects/:project_id/metrics` | `PATCH /projects/@me/metrics` |
+
+Each endpoint requires a [scope](/oauth/scopes) the user granted. On top of the project endpoints, OAuth tokens can call:
+
+- [`GET /projects`](/api/v1/projects) to look up the project the authorization covers
+- [`GET /users/@me`](/api/v1/users) to identify the user who authorized you
+- [`/users/@me/projects`](/api/v1/users) to list the user's projects and create drafts for them
+- [Project webhooks](/api/v1/project-webhooks) to create and manage vote webhooks
+- [Project integrations](/api/v1/project-integrations) to connect and disconnect integrations
+
+<Note>
+  `:project_id` is the Top.gg project ID, the same `id` returned by `GET /projects/@me`. It is not the Discord application or server ID.
+</Note>
+
+## Your application only manages what it created
+
+Webhooks and integrations are shared between the project owner, the dashboard, and every application the owner authorized. To keep applications from interfering with each other, your application only sees and manages the webhooks it created and the integrations it connected. Everything else on the project is invisible to it, even with the matching scope.
+
+## Tokens
+
+| Token | Lifetime | Notes |
+| --- | --- | --- |
+| Authorization code | 60 seconds | Single use. Exchange it right away. |
+| Access token | 7 days | Bearer token for API requests, bound to one authorization. |
+| Refresh token | Does not expire | Rotated on every use. Each refresh token works once. |
+| Application token | Does not expire | One per application, works on every granted project. See [application token](/oauth/application-token). |
+
+Revoking a refresh token revokes the whole authorization. The user can also remove your application from their Top.gg settings at any time, which invalidates all tokens immediately.
+
+If your application only acts on projects, the [application token](/oauth/application-token) saves you from storing access tokens entirely: users authorize their projects once, and the single static token covers all of them. Access tokens remain necessary for the `user.*` scopes.

@@ -1,0 +1,199 @@
+---
+title: "Manage Project Webhooks with OAuth"
+sidebarTitle: "Project webhooks"
+description: "Create, list, delete, rotate, and test vote webhooks on projects that authorized your OAuth application."
+---
+
+The project webhooks endpoints let your application set up vote webhooks on a user's project without the user touching the dashboard. They require an OAuth access token; see the [OAuth overview](/oauth/overview).
+
+Your application only sees and manages webhooks it created. Webhooks created in the dashboard or by other applications are not returned and cannot be modified, even with the `project.webhooks.write` scope. Webhooks created through an integration are managed on the [project integrations](/api/v1/project-integrations) endpoints instead.
+
+Deliveries are signed exactly like dashboard webhooks. See the [webhooks overview](/webhooks/overview) for payloads and signature verification.
+
+---
+
+## GET /projects/:project_id/webhooks
+
+**Required scope:** `project.webhooks.read`
+
+Lists the webhooks your application created on the project.
+
+```bash
+curl https://top.gg/api/v1/projects/218109768489992192/webhooks \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response fields
+
+Returns an array of webhook objects.
+
+<ResponseField name="id" type="string" required>
+  The webhook ID.
+</ResponseField>
+
+<ResponseField name="label" type="string" required>
+  The label shown in the project's dashboard.
+</ResponseField>
+
+<ResponseField name="url" type="string" required>
+  The URL events are delivered to.
+</ResponseField>
+
+### Example response
+
+```json
+[
+  {
+    "id": "1234567890",
+    "label": "Example app",
+    "url": "https://example.com/webhooks/topgg"
+  }
+]
+```
+
+---
+
+## POST /projects/:project_id/webhooks
+
+**Required scope:** `project.webhooks.write`
+
+Creates a vote webhook on the project.
+
+```bash
+curl -X POST https://top.gg/api/v1/projects/218109768489992192/webhooks \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "label": "Example app",
+    "url": "https://example.com/webhooks/topgg"
+  }'
+```
+
+### Request body
+
+<ParamField body="label" type="string" required>
+  Label shown in the project's dashboard. Up to 100 characters.
+</ParamField>
+
+<ParamField body="url" type="string" required>
+  Absolute `https` URL events are delivered to. Up to 2048 characters.
+</ParamField>
+
+### Response fields
+
+Returns `201 Created` with the webhook and its secret.
+
+<ResponseField name="id" type="string" required>
+  The webhook ID.
+</ResponseField>
+
+<ResponseField name="label" type="string" required>
+  The label.
+</ResponseField>
+
+<ResponseField name="url" type="string" required>
+  The delivery URL.
+</ResponseField>
+
+<ResponseField name="secret" type="string" required>
+  The secret used to sign deliveries. Returned only in this response. Store it now.
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "id": "1234567890",
+  "label": "Example app",
+  "url": "https://example.com/webhooks/topgg",
+  "secret": "whs_..."
+}
+```
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `404` | The project is not part of the authorization |
+| `409` | The project has reached its webhook limit |
+| `422` | Validation error (missing label, invalid or non-https URL, length violations) |
+
+---
+
+## DELETE /projects/:project_id/webhooks/:webhook_id
+
+**Required scope:** `project.webhooks.write`
+
+Deletes a webhook your application created.
+
+```bash
+curl -X DELETE https://top.gg/api/v1/projects/218109768489992192/webhooks/1234567890 \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response
+
+Returns `204 No Content` on success.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `404` | The project is not part of the authorization, or the webhook was not created by your application |
+
+---
+
+## POST /projects/:project_id/webhooks/:webhook_id/rotate
+
+**Required scope:** `project.webhooks.write`
+
+Replaces the signing secret of a webhook your application created. The previous secret stops working immediately.
+
+```bash
+curl -X POST https://top.gg/api/v1/projects/218109768489992192/webhooks/1234567890/rotate \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response fields
+
+<ResponseField name="secret" type="string" required>
+  The new signing secret. Returned only in this response.
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "secret": "whs_..."
+}
+```
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `404` | The project is not part of the authorization, or the webhook was not created by your application |
+
+---
+
+## POST /projects/:project_id/webhooks/:webhook_id/test
+
+**Required scope:** `project.webhooks.write`
+
+Sends a `webhook.test` event to a webhook your application created.
+
+```bash
+curl -X POST https://top.gg/api/v1/projects/218109768489992192/webhooks/1234567890/test \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+### Response
+
+Returns `204 No Content` once the destination accepted the event.
+
+### Error responses
+
+| Status | Description |
+|--------|-------------|
+| `404` | The project is not part of the authorization, or the webhook was not created by your application |
+| `409` | The destination rejected the test event |

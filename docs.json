@@ -32,6 +32,15 @@
             ]
           },
           {
+            "group": "OAuth",
+            "pages": [
+              "oauth/overview",
+              "oauth/authorization",
+              "oauth/application-token",
+              "oauth/scopes"
+            ]
+          },
+          {
             "group": "Webhooks",
             "pages": [
               "webhooks/overview",
@@ -69,7 +78,11 @@
               "api/v1/introduction",
               "api/v1/projects",
               "api/v1/votes",
-              "api/v1/webhooks"
+              "api/v1/webhooks",
+              "api/v1/oauth",
+              "api/v1/users",
+              "api/v1/project-webhooks",
+              "api/v1/project-integrations"
             ]
           },
           {

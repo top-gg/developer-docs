@@ -1,9 +1,9 @@
 ---
 title: "Authenticate with the Top.gg API"
-description: "Learn how to obtain your Top.gg API token from the dashboard, pass it in the Authorization header, and handle authentication errors for v0 and v1."
+description: "Learn how to obtain your Top.gg API token from the dashboard, pass it in the Authorization header, use OAuth access tokens, and handle authentication errors for v0 and v1."
 ---
 
-Every request to the Top.gg API requires authentication via a token. You obtain this token from your bot or project's dashboard settings and include it in the `Authorization` header of each request. The format differs between v0 and v1.
+Every request to the Top.gg API requires authentication via a token. For your own project you obtain this token from the project's dashboard settings and include it in the `Authorization` header of each request. The format differs between v0 and v1. Applications that act on behalf of other users authenticate with [OAuth access tokens](#authenticate-with-oauth-access-tokens) instead.
 
 <Note>
   Keep your API token secret. Do not commit it to source control or expose it in client-side code. Use environment variables to manage it securely.
@@ -44,6 +44,16 @@ curl https://top.gg/api/v1/projects/@me \
 <Warning>
   Legacy tokens issued without the `Bearer` prefix do not work on v1 endpoints. If you are migrating from v0, create a new token from your project's Integrations & API settings for use with v1.
 </Warning>
+
+## Authenticate with OAuth access tokens
+
+If your application works with projects owned by other users, let them authorize it through [OAuth](/oauth/overview) instead of asking for their project tokens. The access token you receive is passed the same way as a v1 project token, and the project is addressed by ID instead of `@me`:
+
+```bash
+curl https://top.gg/api/v1/projects/218109768489992192   -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+Access tokens expire after seven days. Use the refresh token to get a new one. See [authorization](/oauth/authorization) for the full flow.
 
 ## Authenticate v0 requests
 

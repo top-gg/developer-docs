@@ -1,0 +1,190 @@
+---
+title: "OAuth Token Endpoints for the Top.gg v1 API"
+sidebarTitle: "OAuth"
+description: "Exchange authorization codes, refresh access tokens, and revoke authorizations with the Top.gg v1 OAuth token endpoints."
+---
+
+The OAuth endpoints issue and revoke tokens for applications that act on behalf of Top.gg users. Read the [authorization guide](/oauth/authorization) for the full flow. Both endpoints take `application/x-www-form-urlencoded` bodies and authenticate your application with its client ID and secret, either as form fields or as HTTP Basic authentication.
+
+Errors follow [RFC 6749](https://www.rfc-editor.org/rfc/rfc6749#section-5.2): a JSON body with `error` and an optional `error_description`.
+
+---
+
+## POST /oauth2/token
+
+Exchanges an authorization code for tokens, or refreshes an access token.
+
+### Authorization code grant
+
+```bash
+curl -X POST https://top.gg/api/v1/oauth2/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d grant_type=authorization_code \
+  -d code=AUTH_CODE \
+  -d redirect_uri=https://example.com/oauth/callback \
+  -d code_verifier=CODE_VERIFIER \
+  -d client_id=YOUR_CLIENT_ID \
+  -d client_secret=YOUR_CLIENT_SECRET
+```
+
+<ParamField body="grant_type" type="string" required>
+  `authorization_code`
+</ParamField>
+
+<ParamField body="code" type="string" required>
+  The code from the callback. Single use, expires after 60 seconds.
+</ParamField>
+
+<ParamField body="redirect_uri" type="string" required>
+  The same `redirect_uri` used in the authorization request.
+</ParamField>
+
+<ParamField body="code_verifier" type="string" required>
+  The PKCE verifier whose SHA-256 hash was sent as `code_challenge`.
+</ParamField>
+
+<ParamField body="client_id" type="string" required>
+  Your client ID. Can be sent via HTTP Basic authentication instead.
+</ParamField>
+
+<ParamField body="client_secret" type="string" required>
+  Your client secret. Can be sent via HTTP Basic authentication instead.
+</ParamField>
+
+### Refresh token grant
+
+```bash
+curl -X POST https://top.gg/api/v1/oauth2/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d grant_type=refresh_token \
+  -d refresh_token=REFRESH_TOKEN \
+  -d client_id=YOUR_CLIENT_ID \
+  -d client_secret=YOUR_CLIENT_SECRET
+```
+
+<ParamField body="grant_type" type="string" required>
+  `refresh_token`
+</ParamField>
+
+<ParamField body="refresh_token" type="string" required>
+  The refresh token from the previous token response. Each refresh token can be used once.
+</ParamField>
+
+<ParamField body="scope" type="string">
+  Space-separated subset of the granted scopes to narrow the new access token. Defaults to all granted scopes.
+</ParamField>
+
+<ParamField body="client_id" type="string" required>
+  Your client ID.
+</ParamField>
+
+<ParamField body="client_secret" type="string" required>
+  Your client secret.
+</ParamField>
+
+### Response fields
+
+<ResponseField name="access_token" type="string" required>
+  Bearer token for v1 API requests.
+</ResponseField>
+
+<ResponseField name="token_type" type="string" required>
+  Always `Bearer`.
+</ResponseField>
+
+<ResponseField name="expires_in" type="number" required>
+  Access token lifetime in seconds. Currently `604800`.
+</ResponseField>
+
+<ResponseField name="refresh_token" type="string" required>
+  New refresh token. Replace the stored one, the previous refresh token is no longer valid.
+</ResponseField>
+
+<ResponseField name="scope" type="string" required>
+  Space-separated scopes the access token carries.
+</ResponseField>
+
+<ResponseField name="project" type="object">
+  The project the user granted. Only returned when exchanging an authorization code. Re-fetch anytime with [GET /projects](/api/v1/projects).
+
+  <Expandable title="Project object properties">
+    <ResponseField name="id" type="string" required>
+      The Top.gg project ID.
+    </ResponseField>
+    <ResponseField name="platform_id" type="string" required>
+      The project's ID on its platform, for example the Discord application ID.
+    </ResponseField>
+    <ResponseField name="name" type="string" required>
+      The project name.
+    </ResponseField>
+    <ResponseField name="platform" type="string" required>
+      The platform the project belongs to. One of `discord` or `roblox`.
+    </ResponseField>
+    <ResponseField name="type" type="string" required>
+      The project type. One of `bot`, `server`, or `game`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example response
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 604800,
+  "refresh_token": "k2Ll3...",
+  "scope": "project.votes.read project.webhooks.write",
+  "project": {
+    "id": "218109768489992192",
+    "platform_id": "1234567890",
+    "name": "Example Bot",
+    "platform": "discord",
+    "type": "bot"
+  }
+}
+```
+
+### Error responses
+
+| Status | `error` | Description |
+| --- | --- | --- |
+| `400` | `invalid_request` | A required parameter is missing or malformed |
+| `400` | `invalid_grant` | The code or refresh token is invalid, expired, or already used, or the PKCE verifier does not match |
+| `400` | `invalid_scope` | The requested scope is not part of the authorization |
+| `400` | `unsupported_grant_type` | `grant_type` is not `authorization_code` or `refresh_token` |
+| `401` | `invalid_client` | Client ID or secret is wrong, or the application is disabled |
+
+---
+
+## POST /oauth2/revoke
+
+Revokes an authorization. Pass the refresh token. Every access token issued for the same authorization stops working as well.
+
+```bash
+curl -X POST https://top.gg/api/v1/oauth2/revoke \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d token=REFRESH_TOKEN \
+  -d client_id=YOUR_CLIENT_ID \
+  -d client_secret=YOUR_CLIENT_SECRET
+```
+
+<ParamField body="token" type="string" required>
+  The refresh token to revoke.
+</ParamField>
+
+<ParamField body="token_type_hint" type="string">
+  Optional, `refresh_token`. Accepted for compatibility with RFC 7009.
+</ParamField>
+
+<ParamField body="client_id" type="string" required>
+  Your client ID.
+</ParamField>
+
+<ParamField body="client_secret" type="string" required>
+  Your client secret.
+</ParamField>
+
+### Response
+
+Always returns `200 OK` with an empty body, including when the token is unknown or already revoked.

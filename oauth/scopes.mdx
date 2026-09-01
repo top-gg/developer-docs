@@ -1,0 +1,28 @@
+---
+title: "OAuth Scopes for the Top.gg API"
+sidebarTitle: "Scopes"
+description: "Every OAuth scope Top.gg supports and what it allows."
+---
+
+Scopes limit what your application can do with an access token. Request them space-separated in the `scope` parameter of the [authorization request](/oauth/authorization). The user sees each one on the consent screen. Every endpoint states its required scope, and a request without it returns `403 Forbidden`.
+
+## Available scopes
+
+| Scope | What it allows |
+| --- | --- |
+| `user.identify` | Read the authorizing user's ID, username, avatar, and linked accounts |
+| `user.projects.read` | List the user's projects |
+| `user.projects.write` | Create draft projects for the user |
+| `project.information.read` | Read project details and review statistics |
+| `project.information.write` | Update project content and registered commands |
+| `project.votes.read` | Read project votes and per-user vote status |
+| `project.metrics.write` | Submit project metrics |
+| `project.announcements.write` | Create project announcements |
+| `project.webhooks.read` | List the webhooks your application created |
+| `project.webhooks.write` | Create webhooks and manage the ones your application created |
+| `project.integrations.read` | List available and connected integrations |
+| `project.integrations.write` | Connect integrations and disconnect the ones your application connected |
+
+A `write` scope includes its `read` counterpart. Requesting `project.webhooks.write` also lets you list webhooks without requesting `project.webhooks.read`.
+
+`user.*` scopes apply to the authorizing user. `project.*` scopes apply to every project the user selected during authorization.
