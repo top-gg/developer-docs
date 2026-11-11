@@ -180,7 +180,7 @@ curl -X PATCH https://top.gg/api/v1/projects/218109768489992192 \
   }'
 ```
 
-For Minecraft servers, you can also set the address players join with in `additional_data`.
+For Minecraft servers, you can also set the address players join with in `additional_data.minecraft_server`.
 
 ```bash
 curl -X PATCH https://top.gg/api/v1/projects/218109768489992192 \
@@ -188,8 +188,10 @@ curl -X PATCH https://top.gg/api/v1/projects/218109768489992192 \
   -H "Content-Type: application/json" \
   -d '{
     "additional_data": {
-      "host": "play.example.com",
-      "port": 25565
+      "minecraft_server": {
+        "host": "play.example.com",
+        "port": 25565
+      }
     }
   }'
 ```
@@ -207,14 +209,20 @@ At least one of `headline`, `page_content`, or `additional_data` must be provide
 </ParamField>
 
 <ParamField body="additional_data" type="object">
-  Platform data to update. Which fields are accepted depends on the project's platform. Sending a field your project's platform doesn't accept returns `422`. Omitted fields keep their current value. Only works with an OAuth access token. `PATCH /projects/@me` returns `422` when it is set.
+  Platform data to update, with one object per platform. Only the object for your project's platform is accepted. Sending another returns `422`. Only works with an OAuth access token. `PATCH /projects/@me` returns `422` when it is set.
 
   <Expandable title="Additional data properties">
-    <ParamField name="host" type="string">
-      Minecraft servers only. The public hostname or IP address players join with, without a port. For example `play.example.com`.
-    </ParamField>
-    <ParamField name="port" type="integer">
-      Minecraft servers only. The port players join with. Must be between 1 and 65535.
+    <ParamField name="minecraft_server" type="object">
+      Minecraft servers only. Omitted fields keep their current value.
+
+      <Expandable title="Minecraft server properties">
+        <ParamField name="host" type="string">
+          The public hostname or IP address players join with, without a port. For example `play.example.com`.
+        </ParamField>
+        <ParamField name="port" type="integer">
+          The port players join with. Must be between 1 and 65535.
+        </ParamField>
+      </Expandable>
     </ParamField>
   </Expandable>
 </ParamField>
