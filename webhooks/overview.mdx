@@ -38,21 +38,35 @@ Every v1 webhook request includes an `x-topgg-signature` header in the format `t
 
 1. Capture the raw request body as a string (do not parse it first).
 2. Parse the `x-topgg-signature` header to extract the timestamp (`t`) and signature (`v1`).
-3. Compute an HMAC SHA-256 digest of `{timestamp}.{rawBody}` using your webhook secret as the key.
-4. Compare the computed digest to the `v1` value using a constant-time comparison.
+3. Reject the request if the timestamp is more than 5 minutes old, to guard against replay attacks.
+4. Compute an HMAC SHA-256 digest of `{timestamp}.{rawBody}` using your webhook secret as the key.
+5. Compare the computed digest to the `v1` value using a constant-time comparison.
 
 ```typescript
 import crypto from 'crypto';
 
 function verifyWebhook(rawBody: string, signature: string, secret: string): boolean {
-  const [tPart, v1Part] = signature.split(',');
-  const timestamp = tPart.split('=')[1];
-  const receivedSig = v1Part.split('=')[1];
+  const parts = signature.split(',');
+  if (parts.length !== 2) return false;
+
+  const timestamp = parts[0]?.split('=')[1];
+  const receivedSig = parts[1]?.split('=')[1];
+  if (!timestamp || !receivedSig) return false;
+
+  const ts = parseInt(timestamp, 10);
+  const now = Math.floor(Date.now() / 1000);
+  if (isNaN(ts) || Math.abs(now - ts) > 300) return false;
+
   const expected = crypto
     .createHmac('sha256', secret)
     .update(`${timestamp}.${rawBody}`)
     .digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(receivedSig));
+
+  const expectedBuf = Buffer.from(expected);
+  const receivedBuf = Buffer.from(receivedSig);
+  if (expectedBuf.length !== receivedBuf.length) return false;
+
+  return crypto.timingSafeEqual(expectedBuf, receivedBuf);
 }
 ```
 
