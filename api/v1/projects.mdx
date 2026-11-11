@@ -1,10 +1,10 @@
 ---
 title: "REST API Endpoints for Projects"
 sidebarTitle: "Projects"
-description: "Use the /projects/:project_id endpoints to retrieve project details, update headline, page content, and Minecraft server addresses, create announcements, and update Discord slash commands. Requires a valid Bearer token."
+description: "Use the /projects/:project_id endpoints to retrieve project details, update headline, page content, and platform data, create announcements, and update Discord slash commands. Requires a valid Bearer token."
 ---
 
-The projects endpoints let you retrieve a project's details, update its headline, page content, and Minecraft server address, create announcements, and push updated command definitions to Top.gg. `:project_id` is the Top.gg project ID of a project your [OAuth authorization](/oauth/overview) covers, and each endpoint states its required [scope](/oauth/scopes).
+The projects endpoints let you retrieve a project's details, update its headline, page content, and platform data, create announcements, and push updated command definitions to Top.gg. `:project_id` is the Top.gg project ID of a project your [OAuth authorization](/oauth/overview) covers, and each endpoint states its required [scope](/oauth/scopes).
 
 A project that is not part of the authorization returns `404`. A missing scope returns `403`.
 
@@ -164,7 +164,7 @@ curl https://top.gg/api/v1/projects/218109768489992192 \
 
 **OAuth scope:** `project.information.write`
 
-Updates the headline and/or page content for your project. Both fields are locale-keyed, so you can set content for multiple languages in a single request.
+Updates the headline, page content, and/or platform data for your project. `headline` and `page_content` are locale-keyed, so you can set content for multiple languages in a single request.
 
 ```bash
 curl -X PATCH https://top.gg/api/v1/projects/218109768489992192 \
@@ -180,7 +180,7 @@ curl -X PATCH https://top.gg/api/v1/projects/218109768489992192 \
   }'
 ```
 
-For Minecraft servers, you can also set the address players join with in `additional_data.minecraft_server`.
+Platform data goes in `additional_data`, under the key for your project's platform. For example, to set a Minecraft server's address:
 
 ```bash
 curl -X PATCH https://top.gg/api/v1/projects/218109768489992192 \
@@ -209,11 +209,11 @@ At least one of `headline`, `page_content`, or `additional_data` must be provide
 </ParamField>
 
 <ParamField body="additional_data" type="object">
-  Platform data to update, with one object per platform. Only the object for your project's platform is accepted. Sending another returns `422`. Only works with an OAuth access token. `PATCH /projects/@me` returns `422` when it is set.
+  Data that only applies to your project's platform, with one object per platform. Only the object for your project's platform is accepted. Sending another returns `422`. Omitted fields keep their current value. Only works with an OAuth access token. `PATCH /projects/@me` returns `422` when it is set.
 
   <Expandable title="Additional data properties">
     <ParamField name="minecraft_server" type="object">
-      Minecraft servers only. Omitted fields keep their current value.
+      Use for projects with `platform: "minecraft"` and `type: "game_server"`.
 
       <Expandable title="Minecraft server properties">
         <ParamField name="host" type="string">
