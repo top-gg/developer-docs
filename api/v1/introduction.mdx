@@ -52,6 +52,7 @@ type ProblemDetails = {
   title: string;      // Short human-readable summary
   status: number;     // HTTP status code
   detail: string;     // Human-readable explanation of this specific occurrence
+  code: string;       // Error code, e.g. PROJECT_NOT_FOUND
 };
 ```
 
@@ -59,11 +60,12 @@ An example error response for a missing or invalid token looks like:
 
 ```json
 {
-  "type": "about:blank",
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
   "title": "Unauthorized",
   "status": 401,
-  "detail": "The provided token is missing or invalid."
+  "detail": "The provided token is missing or invalid.",
+  "code": "UNAUTHORIZED"
 }
 ```
 
-Use the `status` field to determine how to handle errors programmatically, and the `detail` field to surface a meaningful message when debugging.
+Use the `status` and `code` fields to handle errors programmatically, and the `detail` field to surface a meaningful message when debugging.
